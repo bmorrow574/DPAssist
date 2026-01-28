@@ -1,0 +1,171 @@
+# PortfoliOS Configuration File
+# Copy this to config.yaml and fill in your details
+
+# =============================================================================
+# GOOGLE SHEETS SETTINGS
+# =============================================================================
+google_sheets:
+  # The name of your Google Spreadsheet (must match exactly)
+  spreadsheet_name: "Student Portfolio Submissions"
+  
+  # Path to your Google Cloud service account JSON file
+  # Generate this in Google Cloud Console → IAM & Admin → Service Accounts
+  service_account_file: "service-account-credentials.json"
+  
+  # How often to check for new submissions (in seconds)
+  # Default: 300 (5 minutes)
+  check_interval: 300
+
+# =============================================================================
+# DEADLINE SETTINGS
+# =============================================================================
+deadline:
+  # Portfolio submission deadline
+  # Format: YYYY-MM-DD HH:MM (24-hour time)
+  # Example: "2026-02-15 23:59"
+  datetime: "2026-02-15 23:59"
+  
+  # Timezone (optional, defaults to system timezone)
+  # Examples: "America/New_York", "America/Chicago", "America/Los_Angeles"
+  timezone: "America/New_York"
+
+# =============================================================================
+# GOOGLE GEMINI AI SETTINGS
+# =============================================================================
+gemini:
+  # Your Gemini API key from https://aistudio.google.com/apikey
+  api_key: "YOUR_GEMINI_API_KEY_HERE"
+  
+  # Which Gemini model to use for feedback
+  # Options: "gemini-2.0-flash-exp", "gemini-1.5-pro", "gemini-1.5-flash"
+  model: "gemini-2.0-flash-exp"
+  
+  # Temperature for AI responses (0.0 = focused, 1.0 = creative)
+  temperature: 0.7
+
+# =============================================================================
+# EMAIL SETTINGS
+# Choose ONE email provider below and fill in those details
+# =============================================================================
+email:
+  # Which email service are you using?
+  # Options: "gmail", "outlook", "smtp" (for other providers)
+  provider: "gmail"
+  
+  # Your teacher email address
+  teacher_email: "your.email@gmail.com"
+  
+  # ---- GMAIL SETTINGS (if provider = "gmail") ----
+  gmail:
+    # Gmail App Password (NOT your regular password)
+    # Generate at: https://myaccount.google.com/apppasswords
+    # You must have 2-Factor Authentication enabled first
+    app_password: "YOUR_GMAIL_APP_PASSWORD"
+  
+  # ---- OUTLOOK SETTINGS (if provider = "outlook") ----
+  outlook:
+    # Outlook password or app password
+    password: "YOUR_OUTLOOK_PASSWORD"
+  
+  # ---- CUSTOM SMTP SETTINGS (if provider = "smtp") ----
+  smtp:
+    # SMTP server address
+    server: "smtp.example.com"
+    port: 587
+    
+    # Your email password or app-specific password
+    password: "YOUR_EMAIL_PASSWORD"
+    
+    # Use TLS? (True for most modern servers)
+    use_tls: true
+  
+  # Email templates (customize these!)
+  templates:
+    # Subject line for student feedback emails
+    student_subject: "Feedback on Your Portfolio - {student_name}"
+    
+    # Subject line for teacher draft emails
+    teacher_subject: "Portfolio Grading: {student_name} - {unit}"
+
+# =============================================================================
+# RUBRIC SETTINGS
+# =============================================================================
+rubric:
+  # Path to rubric file (PDF, DOCX, TXT, or MD)
+  # Leave empty if you'll paste rubric text directly in the interface
+  file_path: ""
+  
+  # Or paste your rubric text here (if no file specified above)
+  text: |
+    Example rubric:
+    - Clear project description (20 points)
+    - All media has descriptive captions (20 points)
+    - Professional presentation (20 points)
+    - Technical quality (20 points)
+    - Reflection on learning (20 points)
+
+# =============================================================================
+# AGENT BEHAVIOR SETTINGS
+# =============================================================================
+agents:
+  # Link Validator Agent
+  link_validator:
+    # How long to wait for page to load (seconds)
+    timeout: 30
+    
+    # Retry failed checks this many times
+    max_retries: 3
+  
+  # Media Checker Agent  
+  media_checker:
+    # Maximum time to wait for media to load (seconds)
+    media_timeout: 10
+    
+    # Take full-page screenshots?
+    full_page_screenshot: true
+  
+  # Caption Analyzer Agent
+  caption_analyzer:
+    # Minimum caption length to be considered "descriptive"
+    min_caption_length: 20
+    
+    # AI strictness level (1-5, where 5 is most strict)
+    strictness_level: 3
+  
+  # Feedback Generator Agent
+  feedback_generator:
+    # Send feedback to students before deadline?
+    send_student_feedback: true
+    
+    # Create drafts for teacher after deadline?
+    create_teacher_drafts: true
+    
+    # Maximum feedback length (words)
+    max_feedback_words: 500
+
+# =============================================================================
+# LOGGING SETTINGS
+# =============================================================================
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
+  
+  # Where to save log files
+  log_directory: "logs"
+  
+  # Keep log files for how many days?
+  retention_days: 30
+
+# =============================================================================
+# ADVANCED SETTINGS (Most users don't need to change these)
+# =============================================================================
+advanced:
+  # Process multiple submissions simultaneously?
+  # WARNING: May hit API rate limits. Start with False.
+  parallel_processing: false
+  
+  # Maximum submissions to process per cycle
+  max_submissions_per_run: 10
+  
+  # Graceful shutdown on system interrupt?
+  graceful_shutdown: true

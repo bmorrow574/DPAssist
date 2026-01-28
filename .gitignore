@@ -1,0 +1,75 @@
+# PortfoliOS .gitignore
+# Never commit sensitive information!
+# 
+# INSTRUCTIONS: After downloading, rename this file to ".gitignore" (with the dot at the beginning)
+
+# Configuration files with secrets
+config.yaml
+service-account-credentials.json
+*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Email drafts (may contain sensitive info)
+email_drafts/
+
+# Screenshots (may contain sensitive info)
+screenshots/
+*.png
+*.jpg
+*.jpeg
+
+# Temporary files
+*.tmp
+*.bak
+*.cache
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Keep example config
+!config.example.yaml
