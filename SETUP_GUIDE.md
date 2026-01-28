@@ -1,7 +1,7 @@
-# PortfoliOS Setup Guide
+# DPAssist Setup Guide
 ## For Non-Technical Teachers
 
-This guide will walk you through setting up PortfoliOS step-by-step. **No prior programming experience needed!**
+This guide will walk you through setting up DPAssist step-by-step. **No prior programming experience needed!**
 
 ---
 
@@ -9,13 +9,13 @@ This guide will walk you through setting up PortfoliOS step-by-step. **No prior 
 
 1. [What You'll Need](#what-youll-need)
 2. [Step 1: Install Python](#step-1-install-python)
-3. [Step 2: Download PortfoliOS](#step-2-download-portfolios)
+3. [Step 2: Download DPAssist](#step-2-download-dpassist)
 4. [Step 3: Get Google Cloud Credentials](#step-3-get-google-cloud-credentials)
 5. [Step 4: Get Gemini AI API Key](#step-4-get-gemini-ai-api-key)
 6. [Step 5: Setup Email Access](#step-5-setup-email-access)
 7. [Step 6: Create Your Configuration File](#step-6-create-your-configuration-file)
 8. [Step 7: Install Required Software](#step-7-install-required-software)
-9. [Step 8: Run PortfoliOS](#step-8-run-portfolios)
+9. [Step 8: Run DPAssist](#step-8-run-dpassist)
 10. [Troubleshooting](#troubleshooting)
 
 ---
@@ -33,7 +33,7 @@ Before starting, gather:
 
 ## Step 1: Install Python
 
-Python is the programming language PortfoliOS is written in.
+Python is the programming language DPAssist is written in.
 
 ### Windows:
 
@@ -67,14 +67,14 @@ You should see something like "Python 3.9.x" or newer.
 
 ---
 
-## Step 2: Download PortfoliOS
+## Step 2: Download DPAssist
 
 ### If you're comfortable with GitHub:
 
-1. Go to the PortfoliOS GitHub repository
+1. Go to the DPAssist GitHub repository
 2. Click the green "Code" button
 3. Click "Download ZIP"
-4. Extract the ZIP file to a folder on your computer (e.g., `Documents/PortfoliOS`)
+4. Extract the ZIP file to a folder on your computer (e.g., `Documents/DPAssist`)
 
 ### If GitHub is confusing:
 
@@ -85,7 +85,7 @@ You should see something like "Python 3.9.x" or newer.
 
 ## Step 3: Get Google Cloud Credentials
 
-This allows PortfoliOS to read and write to your Google Sheet.
+This allows DPAssist to read and write to your Google Sheet.
 
 ### Step 3.1: Create a Google Cloud Project
 
@@ -93,7 +93,7 @@ This allows PortfoliOS to read and write to your Google Sheet.
 2. Sign in with your Google account
 3. Click the project dropdown at the top (next to "Google Cloud")
 4. Click "NEW PROJECT"
-5. Name it "PortfoliOS" (or anything you like)
+5. Name it "DPAssist" (or anything you like)
 6. Click "CREATE"
 7. Wait a few seconds, then select your new project from the dropdown
 
@@ -115,7 +115,7 @@ This allows PortfoliOS to read and write to your Google Sheet.
 1. In the left sidebar, click "Credentials"
 2. At the top, click "+ CREATE CREDENTIALS"
 3. Select "Service Account"
-4. Give it a name like "PortfoliOS Bot"
+4. Give it a name like "DPAssist Bot"
 5. Click "CREATE AND CONTINUE"
 6. For role, select "Editor" (you can search for it)
 7. Click "CONTINUE"
@@ -124,20 +124,20 @@ This allows PortfoliOS to read and write to your Google Sheet.
 ### Step 3.5: Download Credentials File
 
 1. You'll see your service account in the list
-2. Click on the service account email (looks like portfolios-bot@...)
+2. Click on the service account email (looks like dpassist-bot@...)
 3. Go to the "KEYS" tab
 4. Click "ADD KEY" → "Create new key"
 5. Choose "JSON" format
 6. Click "CREATE"
 7. A file will download - **THIS IS IMPORTANT!**
 8. Rename the file to `service-account-credentials.json`
-9. Move it to your PortfoliOS folder
+9. Move it to your DPAssist folder
 
 ### Step 3.6: Share Your Google Sheet
 
 1. Open the JSON file you just downloaded in a text editor
 2. Find the line with "client_email" - it looks like:
-   `"client_email": "portfolios-bot@your-project.iam.gserviceaccount.com"`
+   `"client_email": "dpassist-bot@your-project.iam.gserviceaccount.com"`
 3. Copy that email address
 4. Open your Google Sheet with student submissions
 5. Click the "Share" button (top right)
@@ -149,12 +149,12 @@ This allows PortfoliOS to read and write to your Google Sheet.
 
 ## Step 4: Get Gemini AI API Key
 
-Gemini is Google's AI that analyzes the portfolios.
+Gemini is Google's AI that analyzes the digital portfolios.
 
 1. Go to https://aistudio.google.com/apikey
 2. Sign in with your Google account
 3. Click "Create API Key"
-4. Choose your Google Cloud project (PortfoliOS)
+4. Choose your Google Cloud project (DPAssist)
 5. Click "Create API Key in Existing Project"
 6. **Copy the API key and save it somewhere safe** (you'll need it soon)
 
@@ -164,7 +164,7 @@ Gemini is Google's AI that analyzes the portfolios.
 
 ## Step 5: Setup Email Access
 
-PortfoliOS needs to send emails on your behalf.
+DPAssist needs to send emails on your behalf.
 
 ### Option A: Gmail (Recommended)
 
@@ -178,7 +178,7 @@ PortfoliOS needs to send emails on your behalf.
 
 1. Go to https://myaccount.google.com/apppasswords
 2. In the "Select app" dropdown, choose "Mail"
-3. In the "Select device" dropdown, choose "Other" and type "PortfoliOS"
+3. In the "Select device" dropdown, choose "Other" and type "DPAssist"
 4. Click "Generate"
 5. **Copy the 16-character password (no spaces)** - you'll need this!
 
@@ -201,7 +201,7 @@ You'll need to find your email provider's SMTP settings:
 
 ## Step 6: Create Your Configuration File
 
-1. In your PortfoliOS folder, find the file `config.example.yaml`
+1. In your DPAssist folder, find the file `config.example.yaml`
 2. Make a copy of it and rename the copy to `config.yaml`
 3. Open `config.yaml` in a text editor (Notepad, TextEdit, VS Code, etc.)
 4. Fill in the following sections:
@@ -254,7 +254,7 @@ email:
 If you have a rubric document:
 ```yaml
 rubric:
-  file_path: "my_rubric.pdf"  # Put rubric file in PortfoliOS folder
+  file_path: "my_rubric.pdf"  # Put rubric file in DPAssist folder
 ```
 
 Or paste rubric text directly:
@@ -277,18 +277,18 @@ rubric:
 
 **Mac**: Press Command + Space, type "Terminal", press Enter
 
-### Step 7.2: Navigate to PortfoliOS Folder
+### Step 7.2: Navigate to DPAssist Folder
 
-Type this command (adjust the path to where you put PortfoliOS):
+Type this command (adjust the path to where you put DPAssist):
 
 **Windows**:
 ```bash
-cd C:\Users\YourName\Documents\PortfoliOS
+cd C:\Users\YourName\Documents\DPAssist
 ```
 
 **Mac**:
 ```bash
-cd ~/Documents/PortfoliOS
+cd ~/Documents/DPAssist
 ```
 
 ### Step 7.3: Install Requirements
@@ -299,7 +299,7 @@ Copy this command and press Enter:
 pip install -r requirements.txt
 ```
 
-This will download and install all the software PortfoliOS needs. It may take a few minutes.
+This will download and install all the software DPAssist needs. It may take a few minutes.
 
 **If you see errors**, try:
 ```bash
@@ -308,13 +308,13 @@ pip3 install -r requirements.txt
 
 ---
 
-## Step 8: Run PortfoliOS
+## Step 8: Run DPAssist
 
-You're ready to run PortfoliOS!
+You're ready to run DPAssist!
 
 ### First Time Testing:
 
-In your terminal (still in the PortfoliOS folder), type:
+In your terminal (still in the DPAssist folder), type:
 
 ```bash
 python main.py
@@ -328,7 +328,7 @@ python3 main.py
 You should see:
 ```
 ======================================================================
-PortfoliOS - Multi-Agent Portfolio Feedback System
+DPAssist - Multi-Agent Portfolio Feedback System
 ======================================================================
 
 Initializing...
@@ -343,8 +343,8 @@ Press Ctrl+C to stop.
 
 ### Let it Run:
 
-- PortfoliOS will now check your Google Sheet every 5 minutes (or whatever you set)
-- When students submit portfolios, it will automatically process them
+- DPAssist will now check your Google Sheet every 5 minutes (or whatever you set)
+- When students submit digital portfolios, it will automatically process them
 - Before the deadline: students get immediate feedback via email
 - After the deadline: you get draft emails to review
 
@@ -354,11 +354,11 @@ Press `Ctrl+C` (or Command+C on Mac)
 
 ---
 
-## Running PortfoliOS Continuously
+## Running DPAssist Continuously
 
 ### Option 1: Keep Computer Awake (Simplest)
 
-1. Leave PortfoliOS running
+1. Leave DPAssist running
 2. Adjust your computer's power settings so it doesn't sleep
 3. The program will keep running until you stop it
 
@@ -370,7 +370,7 @@ Press `Ctrl+C` (or Command+C on Mac)
 **Windows** (using Task Scheduler):
 1. Open Task Scheduler
 2. Create Basic Task
-3. Set it to run `python main.py` in your PortfoliOS folder
+3. Set it to run `python main.py` in your DPAssist folder
 4. Set trigger (e.g., "At startup")
 
 **Mac** (using launchd):
@@ -417,7 +417,7 @@ Deploy to:
 
 ### Chrome/Selenium Errors
 
-PortfoliOS needs Chrome to view portfolios. Make sure:
+DPAssist needs Chrome to view digital portfolios. Make sure:
 - Google Chrome is installed on your computer
 - If errors persist, the program will try to download ChromeDriver automatically
 
@@ -432,7 +432,7 @@ PortfoliOS needs Chrome to view portfolios. Make sure:
 
 ---
 
-## Understanding What PortfoliOS Does
+## Understanding What DPAssist Does
 
 When a student submits their portfolio:
 
@@ -466,13 +466,13 @@ When a student submits their portfolio:
 
 - **GitHub Issues**: Post questions at [GitHub repo]/issues
 - **Documentation**: Check README.md for more details
-- **Community**: Look for other teachers using PortfoliOS
+- **Community**: Look for other teachers using DPAssist
 
 ---
 
 ## Next Steps
 
-Once PortfoliOS is running:
+Once DPAssist is running:
 
 1. Test with a dummy submission first
 2. Adjust the AI feedback parameters in `config.yaml` if needed

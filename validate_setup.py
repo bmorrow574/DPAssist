@@ -1,5 +1,5 @@
 """
-PortfoliOS Setup Validator
+DPAssist Setup Validator
 
 This script helps you verify that everything is configured correctly
 before running the main system.
@@ -289,7 +289,7 @@ def check_email_config():
 
 def main():
     """Run all checks"""
-    print_header("PortfoliOS Setup Validator")
+    print_header("DPAssist Setup Validator")
     
     print("\nRunning configuration checks...\n")
     
@@ -314,7 +314,7 @@ def main():
     print(f"\nPassed: {passed}/{total}")
     
     if passed == total:
-        print("\n✓ All checks passed! You're ready to run PortfoliOS.")
+        print("\n✓ All checks passed! You're ready to run DPAssist.")
         print("\nTo start the system, run:")
         print("  python main.py")
     else:

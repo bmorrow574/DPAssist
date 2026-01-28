@@ -1,5 +1,5 @@
 """
-PortfoliOS Main Orchestrator
+DPAssist Main Orchestrator
 
 This is the main program that coordinates all the specialized agents.
 It runs continuously in the background, processing portfolio submissions.
@@ -27,7 +27,7 @@ from agent_feedback_generator import FeedbackGeneratorAgent
 from agent_email_drafter import EmailDrafterAgent
 
 
-class PortfoliosOrchestrator:
+class DPAssistOrchestrator:
     """
     Main orchestrator that coordinates all agents
     """
@@ -45,7 +45,7 @@ class PortfoliosOrchestrator:
         # Setup logging
         self.logger = setup_logging(self.config)
         self.logger.info("=" * 70)
-        self.logger.info("PortfoliOS Multi-Agent System Starting")
+        self.logger.info("DPAssist Multi-Agent System Starting")
         self.logger.info("=" * 70)
         
         # Connect to Google Sheets
@@ -276,7 +276,7 @@ class PortfoliosOrchestrator:
                 # Wait a bit before retrying
                 time.sleep(60)
         
-        self.logger.info("PortfoliOS shutting down gracefully")
+        self.logger.info("DPAssist shutting down gracefully")
 
 
 def main():
@@ -285,12 +285,12 @@ def main():
     """
     try:
         print("=" * 70)
-        print("PortfoliOS - Multi-Agent Portfolio Feedback System")
+        print("DPAssist - Multi-Agent Portfolio Feedback System")
         print("=" * 70)
         print()
         print("Initializing...")
         
-        orchestrator = PortfoliosOrchestrator()
+        orchestrator = DPAssistOrchestrator()
         
         print("✓ System initialized successfully")
         print()
