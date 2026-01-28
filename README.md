@@ -1,41 +1,41 @@
-# PortfoliOS 🎓
+# DPAssist
 
 **AI-Powered Digital Portfolio Feedback System for Educators**
 
-PortfoliOS is an intelligent, multi-agent system that automatically evaluates student digital portfolios (Google Sites, GitHub Pages, etc.) and provides immediate, personalized feedback. Perfect for STEM and Computer Science teachers managing large classes.
+DPAssist is an intelligent, multi-agent system that automatically evaluates student digital portfolios (Google Sites, GitHub Pages, etc.) and provides immediate, personalized feedback. Perfect for STEM and Computer Science teachers managing large classes.
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 ### Automated Evaluation
-- ✅ **Link Validation**: Ensures portfolio URLs are accessible
-- ✅ **Media Checking**: Verifies all images and videos load correctly
-- ✅ **Caption Analysis**: AI evaluates caption quality and relevance
-- ✅ **Timeliness Tracking**: Automatically detects late submissions
+- **Link Validation**: Ensures portfolio URLs are accessible
+- **Media Checking**: Verifies all images and videos load correctly
+- **Caption Analysis**: AI evaluates caption quality and relevance
+- **Timeliness Tracking**: Automatically detects late submissions
 
 ### Smart Feedback System
-- 📧 **Before Deadline**: Students receive immediate feedback and can resubmit unlimited times
-- 📝 **After Deadline**: Creates draft emails for teacher review before final grading
-- 🤖 **AI-Powered**: Uses Google's Gemini AI to generate personalized, constructive feedback
-- 📊 **Rubric-Based**: Incorporates your custom rubric into evaluations
+- **Before Deadline**: Students receive immediate feedback and can resubmit unlimited times
+- **After Deadline**: Creates draft emails for teacher review before final grading
+- **AI-Powered**: Uses Google's Gemini AI to generate personalized, constructive feedback
+- **Rubric-Based**: Incorporates your custom rubric into evaluations
 
 ### Continuous Operation
-- ⏰ **Always Running**: Monitors submissions 24/7 (configurable interval)
-- 🔄 **Automatic Processing**: No manual "Run" button needed
-- 🛡️ **Error Handling**: Gracefully handles failures and retries
-- 📈 **Scalable**: Processes multiple students efficiently
+- **Always Running**: Monitors submissions 24/7 (configurable interval)
+- **Automatic Processing**: No manual "Run" button needed
+- **Error Handling**: Gracefully handles failures and retries
+- **Scalable**: Processes multiple students efficiently
 
 ### Multi-Platform Support
-- 📬 **Email Providers**: Gmail, Outlook, or any SMTP server
-- ☁️ **Flexible Deployment**: Run locally, on a server, or in the cloud
-- 🌐 **Universal Format**: Works with Google Sites, GitHub Pages, or any web-based portfolio
+- **Email Providers**: Gmail, Outlook, or any SMTP server
+- **Flexible Deployment**: Run locally, on a server, or in the cloud
+- **Universal Format**: Works with Google Sites, GitHub Pages, or any web-based portfolio
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
-PortfoliOS uses a **multi-agent architecture** where specialized AI agents work together:
+DPAssist uses a **multi-agent architecture** where specialized AI agents work together:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -85,7 +85,7 @@ Each agent is independent, testable, and can be configured separately.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -98,8 +98,8 @@ Each agent is independent, testable, and can be configured separately.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/PortfoliOS.git
-   cd PortfoliOS
+   git clone https://github.com/bmorrow574/DPAssist.git
+   cd DPAssist
    ```
 
 2. **Install dependencies**
@@ -113,18 +113,18 @@ Each agent is independent, testable, and can be configured separately.
    # Edit config.yaml with your credentials
    ```
 
-4. **Run PortfoliOS**
+4. **Run DPAssist**
    ```bash
    python main.py
    ```
 
 **That's it!** The system will now continuously monitor your Google Sheet and process submissions automatically.
 
-📖 **For detailed setup instructions, see [SETUP_GUIDE.md](SETUP_GUIDE.md)**
+**For detailed setup instructions, see [SETUP_GUIDE.md](SETUP_GUIDE.md)**
 
 ---
 
-## 📋 Configuration
+## Configuration
 
 All settings are in `config.yaml`:
 
@@ -156,7 +156,7 @@ See `config.example.yaml` for all available options.
 
 ---
 
-## 📊 Google Sheet Format
+## Google Sheet Format
 
 Your Google Sheet should have these columns (names detected automatically):
 
@@ -164,7 +164,7 @@ Your Google Sheet should have these columns (names detected automatically):
 |-----------|-------|------------|-----------|----------------|--------------|
 | 2/1/2026 10:30 | student@email.com | Jane | Doe | https://sites.google.com/... | Unit 3 |
 
-PortfoliOS automatically adds these columns:
+DPAssist automatically adds these columns:
 - **Status**: Current processing status
 - **Timeliness**: On time or late
 - **Link Status**: Link validation result
@@ -175,12 +175,12 @@ PortfoliOS automatically adds these columns:
 
 ---
 
-## 🎯 How It Works
+## How It Works
 
 ### Before the Deadline
 
 1. Student submits portfolio via Google Form
-2. PortfoliOS detects new submission (within 5 minutes)
+2. DPAssist detects new submission (within 5 minutes)
 3. All agents evaluate the portfolio
 4. Student receives immediate feedback via email
 5. Student can fix issues and resubmit
@@ -196,15 +196,15 @@ PortfoliOS automatically adds these columns:
 
 ---
 
-## 🎓 For Teachers
+## For Teachers
 
 ### What Teachers Need to Know
 
-✅ **No coding required** - Just configure `config.yaml`
-✅ **Runs automatically** - Set it and forget it
-✅ **Students get instant feedback** - Encourages iteration
-✅ **You maintain control** - Review all final grades
-✅ **Scales easily** - Handles classes of any size
+- **No coding required** - Just configure `config.yaml`
+- **Runs automatically** - Set it and forget it
+- **Students get instant feedback** - Encourages iteration
+- **You maintain control** - Review all final grades
+- **Scales easily** - Handles classes of any size
 
 ### Common Use Cases
 
@@ -223,10 +223,10 @@ PortfoliOS automatically adds these columns:
 
 ---
 
-## 🛠️ Project Structure
+## Project Structure
 
 ```
-PortfoliOS/
+DPAssist/
 ├── main.py                      # Main orchestrator
 ├── utils.py                     # Shared utilities
 ├── config.yaml                  # Your configuration (don't commit!)
@@ -253,15 +253,15 @@ PortfoliOS/
 
 ---
 
-## 🔧 Advanced Features
+## Advanced Features
 
 ### Running as a Service
 
 **Linux (systemd)**:
 ```bash
-# See deployment/portfolios.service
-sudo systemctl enable portfolios
-sudo systemctl start portfolios
+# See deployment/dpassist.service
+sudo systemctl enable dpassist
+sudo systemctl start dpassist
 ```
 
 **Windows**:
@@ -269,8 +269,8 @@ Use Task Scheduler to run on startup
 
 **Docker**:
 ```bash
-docker build -t portfolios .
-docker run -d --name portfolios portfolios
+docker build -t dpassist .
+docker run -d --name dpassist dpassist
 ```
 
 ### Cloud Deployment
@@ -283,12 +283,12 @@ docker run -d --name portfolios portfolios
 ### Monitoring
 
 - Logs stored in `logs/` directory
-- Check status: `tail -f logs/portfolios_YYYYMMDD.log`
+- Check status: `tail -f logs/dpassist_YYYYMMDD.log`
 - Email notifications on critical errors (configurable)
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions welcome! Please:
 
@@ -302,8 +302,8 @@ Contributions welcome! Please:
 
 ```bash
 # Clone your fork
-git clone https://github.com/yourusername/PortfoliOS.git
-cd PortfoliOS
+git clone https://github.com/bmorrow574/DPAssist.git
+cd DPAssist
 
 # Create virtual environment
 python -m venv venv
@@ -322,13 +322,13 @@ black .
 
 ---
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with Google's Gemini AI for intelligent feedback
 - Uses Selenium for web automation
@@ -336,15 +336,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Support
+## Support
 
 - **Documentation**: See [SETUP_GUIDE.md](SETUP_GUIDE.md)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/PortfoliOS/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/PortfoliOS/discussions)
+- **Issues**: [GitHub Issues](https://github.com/bmorrow574/DPAssist/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/bmorrow574/DPAssist/discussions)
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
 - [ ] Web-based dashboard for monitoring
 - [ ] Support for more portfolio platforms (Notion, Behance)
@@ -357,12 +357,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## ⭐ Star History
+## Star History
 
-If you find PortfoliOS useful, please star the repository! It helps other educators discover the project.
+If you find DPAssist useful, please star the repository! It helps other educators discover the project.
 
 ---
 
-**Made with ❤️ by teachers, for teachers**
+**Made with care by teachers, for teachers**
 
-*PortfoliOS: Because every student deserves timely, personalized feedback.*
+*DPAssist: Because every student deserves timely, personalized feedback.*
