@@ -1,8 +1,8 @@
-# PortfoliOS Multi-Agent Architecture
+# DPAssist Multi-Agent Architecture
 
 ## System Overview
 
-PortfoliOS is redesigned as a **continuous background service** with **6 specialized AI agents** working together to provide automated portfolio feedback.
+DPAssist is redesigned as a **continuous background service** with **6 specialized AI agents** working together to provide automated portfolio feedback.
 
 ## Agent Architecture
 

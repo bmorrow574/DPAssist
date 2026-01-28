@@ -1,4 +1,4 @@
-# Working with PortfoliOS: Development & GitHub Guide
+# Working with DPAssist: Development & GitHub Guide
 
 ## About Iterative Development with AI
 
@@ -19,9 +19,9 @@ However, it's important to understand:
 - It requires you to guide it and verify changes
 - Best used for specific tasks, not full application monitoring
 
-### Using Claude Code with PortfoliOS
+### Using Claude Code with DPAssist
 
-If you want to use Claude Code to help develop PortfoliOS:
+If you want to use Claude Code to help develop DPAssist:
 
 ```bash
 # Install Claude Code (requires Anthropic API access)
@@ -38,7 +38,7 @@ claude-code "Add a new configuration option for custom email templates"
 
 ## Connecting VS Code to GitHub
 
-Here's how to set up VS Code with GitHub for sharing PortfoliOS:
+Here's how to set up VS Code with GitHub for sharing DPAssist:
 
 ### Step 1: Install VS Code
 
@@ -91,7 +91,7 @@ git config --global user.email "your.email@example.com"
 
 1. Go to https://github.com
 2. Click the "+" icon (top right) → "New repository"
-3. Name it "PortfoliOS"
+3. Name it "DPAssist"
 4. **IMPORTANT**: Check "Add a README file"
 5. **IMPORTANT**: Add .gitignore template → Choose "Python"
 6. Choose a license (MIT License is good for education)
@@ -99,7 +99,7 @@ git config --global user.email "your.email@example.com"
 
 **Option B: Via VS Code**
 
-1. Open your PortfoliOS folder in VS Code (File → Open Folder)
+1. Open your DPAssist folder in VS Code (File → Open Folder)
 2. Click Source Control icon (left sidebar, looks like branches)
 3. Click "Publish to GitHub"
 4. Choose "Publish to GitHub public repository" or private
@@ -108,13 +108,13 @@ git config --global user.email "your.email@example.com"
 
 ### Step 7: Initial Commit
 
-1. In VS Code, open your PortfoliOS folder
+1. In VS Code, open your DPAssist folder
 2. Open Source Control (Ctrl+Shift+G or Cmd+Shift+G)
 3. You'll see all changed files
 4. **IMPORTANT**: Make sure `config.yaml` and `service-account-credentials.json` are NOT listed
    - If they are, they should be grayed out (due to .gitignore)
    - If not grayed out, add them to .gitignore NOW
-5. Type a commit message: "Initial commit of PortfoliOS"
+5. Type a commit message: "Initial commit of DPAssist"
 6. Click the checkmark (✓) to commit
 7. Click "..." → "Push" to send to GitHub
 
@@ -285,7 +285,7 @@ You can set up GitHub Actions to:
 Example `.github/workflows/test.yml`:
 
 ```yaml
-name: Test PortfoliOS
+name: Test DPAssist
 
 on: [push, pull_request]
 
@@ -366,7 +366,7 @@ You asked about having this "constantly work." Here's what that means:
 
 ### What We Built
 
-PortfoliOS IS designed to run constantly:
+DPAssist IS designed to run constantly:
 - Checks for submissions every 5 minutes
 - Processes them automatically
 - Sends feedback without human intervention
@@ -394,7 +394,7 @@ To check if it's working:
 
 1. **VS Code + GitHub**: Great for version control and sharing
 2. **Claude Code**: For developers, not needed for basic use
-3. **Continuous operation**: PortfoliOS already does this!
+3. **Continuous operation**: DPAssist already does this!
 4. **Not fully autonomous**: You still monitor and configure
 
 The system you have is actually MORE automated than what most "constantly working" tools provide, because it:

@@ -1,4 +1,4 @@
-# PortfoliOS Troubleshooting Guide
+# DPAssist Troubleshooting Guide
 
 ## Common Issues and Solutions
 
@@ -35,10 +35,10 @@
 
 #### "Config file not found"
 
-**Problem**: PortfoliOS can't find `config.yaml`.
+**Problem**: DPAssist can't find `config.yaml`.
 
 **Solutions**:
-1. Make sure you're in the PortfoliOS directory when running `python main.py`
+1. Make sure you're in the DPAssist directory when running `python main.py`
 2. Check that you created `config.yaml` (not still using `config.example.yaml`)
 3. Run: `pwd` (Mac/Linux) or `cd` (Windows) to verify your location
 
@@ -90,7 +90,7 @@
    - Search for "Google Drive API" → Make sure it's ENABLED
 
 4. **Verify credentials file**:
-   - Make sure `service-account-credentials.json` is in your PortfoliOS folder
+   - Make sure `service-account-credentials.json` is in your DPAssist folder
    - Check that the path in `config.yaml` matches the actual filename
    - The file should start with `{` and contain JSON data
 
@@ -191,7 +191,7 @@
 1. Make sure Google Chrome is installed on your computer
 2. The program should auto-download ChromeDriver
 3. If it doesn't work, manually download from https://chromedriver.chromium.org/
-4. Put it in your PortfoliOS folder or system PATH
+4. Put it in your DPAssist folder or system PATH
 
 #### "Timeout" or "Page took too long to load"
 
@@ -199,7 +199,7 @@
 1. Increase timeout in `config.yaml`: `agents.link_validator.timeout: 60`
 2. Check your internet connection
 3. Try the portfolio URL in your own browser to verify it works
-4. Some portfolios are just slow - this is normal
+4. Some digital portfolios are just slow - this is normal
 
 #### "Permission denied" on Chrome binary
 
@@ -331,7 +331,7 @@ Always look at the log files first:
 ```bash
 cd logs
 ls -lt  # Shows newest first
-tail -100 portfolios_YYYYMMDD.log  # Last 100 lines
+tail -100 dpassist_YYYYMMDD.log  # Last 100 lines
 ```
 
 ### Enable Debug Logging
