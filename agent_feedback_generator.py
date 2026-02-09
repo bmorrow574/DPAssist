@@ -181,12 +181,20 @@ Score: {caption_analysis.get('overall_score', 0)}/100
 {f"Issues: {caption_analysis.get('missing_captions', 0)} missing, {caption_analysis.get('poor_captions', 0)} poor quality" if caption_analysis.get('has_issues') else "✓ Good caption quality"}
 
 YOUR TASK:
-Write encouraging, constructive feedback (maximum {self.max_feedback_words} words) that:
-1. Acknowledges what the student did well
-2. Clearly explains any issues that need fixing
-3. Provides specific, actionable steps to improve
-4. Maintains a supportive, growth-oriented tone
-5. Reminds them they can resubmit before the deadline
+Write concise, encouraging feedback in BULLET POINT format (maximum {self.max_feedback_words} words):
+
+**What You Did Well:**
+- [List 1-2 specific strengths as bullets]
+
+**What Needs Improvement:**
+- [List specific issues as bullets]
+
+**Next Steps:**
+- [List 1-3 action items as bullets]
+
+Remember: You can resubmit before the deadline!
+
+IMPORTANT: Use bullet points (•) for all feedback items. Keep each bullet to one clear sentence.
 
 Remember: This is formative feedback to help them improve, not a final grade."""
 

@@ -280,14 +280,14 @@ Subject: {subject}
             return False
     
     def _build_student_email_body(self, student_name: str, feedback: str, 
-                                  submission: Dict[str, Any]) -> str:
+                              submission: Dict[str, Any]) -> str:
         """
         Build the email body for student feedback
         """
         body_parts = [
-            f"Hello {student_name},",
+            f"Hi {student_name},",
             "",
-            "Thank you for submitting your portfolio. Here is feedback on your current submission:",
+            "Thank you for submitting your digital portfolio! Here's your automated feedback from DPAssist:",
             "",
             "=" * 60,
             feedback,
@@ -297,8 +297,9 @@ Subject: {subject}
             "",
             "If you have questions, please reply to this email.",
             "",
-            "Best regards,",
-            self.teacher_email
+            "— DPAssist",                           # ← CHANGE THIS
+            "Automated Portfolio Feedback System",   # ← ADD THIS
+            f"Teacher: {self.teacher_email}"        # ← CHANGE THIS
         ]
         
         return "\n".join(body_parts)

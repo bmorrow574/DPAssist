@@ -72,9 +72,13 @@ class DPAssistOrchestrator:
         # Flag for graceful shutdown
         self.running = True
         
-        # Setup signal handlers for graceful shutdown
-        signal.signal(signal.SIGINT, self._signal_handler)
-        signal.signal(signal.SIGTERM, self._signal_handler)
+        # Setup signal handlers for graceful shutdown (Safe for Streamlit)
+        try:
+            signal.signal(signal.SIGINT, self._signal_handler)
+            signal.signal(signal.SIGTERM, self._signal_handler)
+        except ValueError:
+            # Signals only work in the main thread; skip this if running in Streamlit
+            self.logger.warning("Running in a background thread (Streamlit) - signal handlers disabled.")
     
     def _signal_handler(self, signum, frame):
         """

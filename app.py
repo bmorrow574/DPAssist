@@ -1,14 +1,15 @@
 import streamlit as st
 import logging
-import time
-from typing import List, Dict, Any
+import pandas as pd
+from datetime import datetime
+import io
 
 # Import your existing backend logic
 from main import DPAssistOrchestrator
 
 # --- Page Config ---
 st.set_page_config(
-    page_title="DPAssist Dashboard",
+    page_title="DPAssist Teacher Dashboard",
     page_icon="🎓",
     layout="wide"
 )
@@ -25,7 +26,7 @@ class StreamlitLogHandler(logging.Handler):
         self.text += msg + "\n"
         self.container.code(self.text, language="text")
 
-# --- Initialize the System (Cached so it doesn't reload every click) ---
+# --- Initialize the System ---
 @st.cache_resource
 def get_orchestrator():
     """Initializes the backend system once."""
@@ -33,82 +34,135 @@ def get_orchestrator():
 
 # --- Main App Interface ---
 def main():
-    st.title("🎓 DPAssist: Feedback Tool")
-    st.markdown("Use this dashboard to run checks on student portfolios without opening the terminal.")
+    st.title("🎓 DPAssist: Teacher Dashboard")
+    st.markdown("Automated grading and feedback for student portfolios.")
 
-    # Initialize the backend
+    # Initialize Backend
     try:
-        with st.spinner("Connecting to Google Cloud & AI Agents..."):
+        with st.spinner("Connecting to agents..."):
             orchestrator = get_orchestrator()
-        st.success("System Online and Connected!")
+        st.success("✅ System Online")
     except Exception as e:
         st.error(f"Failed to connect: {e}")
         return
 
-    # --- Sidebar for Settings ---
+    # ==========================================
+    # SIDEBAR: Teacher Controls
+    # ==========================================
     with st.sidebar:
-        st.header("Control Panel")
-        check_now = st.button("Check for New Submissions", type="primary")
+        st.header("📋 Grading Settings")
         
-        st.markdown("---")
-        st.caption("System Status")
+        # 1. Due Date Setting
+        st.subheader("1. Set Due Date")
+        current_deadline = orchestrator.timeliness_agent.deadline
+        new_date = st.date_input("Deadline Date", value=current_deadline.date())
+        new_time = st.time_input("Deadline Time", value=current_deadline.time())
         
-        # Display Config Info (Safely)
-        st.info(f"📅 Deadline: {orchestrator.timeliness_agent.deadline}")
-        st.info(f"📧 Teacher: {orchestrator.email_drafter.teacher_email}")
+        # Combine into a datetime object
+        selected_deadline = datetime.combine(new_date, new_time)
+        
+        # 2. Rubric Upload
+        st.subheader("2. Upload Rubric")
+        uploaded_rubric = st.file_uploader("Upload Rubric (PDF, Docx, or Txt)", type=['pdf', 'docx', 'txt'])
+        
+        # 3. Student Exceptions (Extensions)
+        st.subheader("3. Manage Exceptions")
+        st.caption("Enter emails of students allowed to be late (one per line).")
+        exempt_emails_input = st.text_area("Extended/Exempt Students")
+        exempt_emails = [e.strip() for e in exempt_emails_input.split('\n') if e.strip()]
 
-    # --- Main Action Area ---
+        st.markdown("---")
+        check_now = st.button("🚀 Run Grading Now", type="primary")
+
+    # ==========================================
+    # MAIN AREA
+    # ==========================================
     col1, col2 = st.columns([2, 1])
 
     with col1:
         st.subheader("Live Processing Logs")
         log_container = st.empty()
         
-        # If user clicks the button
         if check_now:
-            # Setup UI logging
-            logger = logging.getLogger()
-            # Clear old handlers to prevent duplicates
-            for h in logger.handlers:
-                logger.removeHandler(h)
+            # --- APPLY TEACHER SETTINGS BEFORE RUNNING ---
             
-            # Attach our new Streamlit handler
+            # 1. Update Deadline in Agent
+            orchestrator.timeliness_agent.deadline = selected_deadline
+            st.toast(f"Deadline set to: {selected_deadline}")
+            
+            # 2. Update Rubric in Agent (if uploaded)
+            if uploaded_rubric:
+                # Read file content based on type
+                try:
+                    import PyPDF2
+                    import docx
+                    
+                    file_text = ""
+                    if uploaded_rubric.name.endswith('.pdf'):
+                        reader = PyPDF2.PdfReader(uploaded_rubric)
+                        file_text = '\n'.join(page.extract_text() for page in reader.pages)
+                    elif uploaded_rubric.name.endswith('.docx'):
+                        doc = docx.Document(uploaded_rubric)
+                        file_text = '\n'.join(p.text for p in doc.paragraphs)
+                    else: # txt
+                        stringio = io.StringIO(uploaded_rubric.getvalue().decode("utf-8"))
+                        file_text = stringio.read()
+                    
+                    # Inject into Feedback Generator
+                    orchestrator.feedback_generator.rubric_text = file_text
+                    st.toast("✅ Custom Rubric Loaded")
+                except Exception as e:
+                    st.error(f"Error reading rubric: {e}")
+
+            # 3. Setup Logging
+            logger = logging.getLogger()
+            for h in logger.handlers: logger.removeHandler(h) # Clear old
+            
             handler = StreamlitLogHandler(log_container)
             formatter = logging.Formatter('%(asctime)s - %(message)s', datefmt='%H:%M:%S')
             handler.setFormatter(formatter)
             logger.addHandler(handler)
             logger.setLevel(logging.INFO)
 
-            st.toast("Checking spreadsheet...")
-            
-            # RUN THE CHECK (Using your existing logic)
+            # --- RUN THE LOGIC ---
             try:
-                # 1. Get Pending
                 pending = orchestrator.submission_monitor.get_pending_submissions()
                 
                 if not pending:
                     logger.info("No new pending submissions found.")
-                    st.info("No new submissions found.")
+                    st.info("No new submissions found to grade.")
                 else:
-                    st.toast(f"Found {len(pending)} new submissions!")
-                    logger.info(f"Found {len(pending)} pending submission(s)")
-                    
-                    # 2. Process Each
+                    st.toast(f"Grading {len(pending)} portfolios...")
                     progress_bar = st.progress(0)
+                    
                     for i, submission in enumerate(pending):
+                        # Get Student Info
                         student_name = f"{submission.get('First Name', '')} {submission.get('Last Name', '')}"
-                        st.subheader(f"Processing: {student_name}")
+                        student_email = submission.get('Email', '')
                         
+                        st.write(f"**Analyzing:** {student_name}")
+                        
+                        # CHECK FOR EXCEPTIONS (EXTENSIONS)
+                        # If student is in the 'Exempt' list, we temporarily trick the agent 
+                        # by moving the deadline into the future just for this student.
+                        original_deadline = orchestrator.timeliness_agent.deadline
+                        if student_email in exempt_emails:
+                            logger.info(f"⚠️ Student {student_name} has an extension. Bypassing late check.")
+                            # Set deadline to next year so they are always "on time"
+                            orchestrator.timeliness_agent.deadline = datetime(2030, 1, 1)
+                        
+                        # Process
                         success = orchestrator.process_submission(submission)
                         
-                        if success:
-                            st.success(f"Successfully processed {student_name}")
-                        else:
-                            st.error(f"Failed to process {student_name}")
+                        # Restore original deadline for next student
+                        orchestrator.timeliness_agent.deadline = original_deadline
                         
+                        status = "✅ Done" if success else "❌ Failed"
+                        st.caption(f"{status} - {student_name}")
                         progress_bar.progress((i + 1) / len(pending))
                     
                     st.balloons()
+                    st.success("Grading Run Complete!")
                     
             except Exception as e:
                 st.error(f"Critical Error: {e}")
@@ -116,7 +170,13 @@ def main():
 
     with col2:
         st.subheader("Quick Links")
-        st.link_button("Open Google Sheet", f"https://docs.google.com/spreadsheets/d/{orchestrator.config['google_sheets']['spreadsheet_name']}")
+        try:
+            sheet_name = orchestrator.config['google_sheets']['spreadsheet_name']
+            st.link_button("📂 Open Google Sheet", f"https://docs.google.com/spreadsheets/d/{sheet_name}")
+        except:
+            st.info("Spreadsheet link unavailable")
+            
+        st.info(f"**Current Deadline Config:**\n\n{selected_deadline.strftime('%B %d, %Y at %I:%M %p')}")
 
 if __name__ == "__main__":
     main()
