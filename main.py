@@ -243,9 +243,9 @@ class DPAssistOrchestrator:
         Main run loop - continuously monitors and processes submissions
         """
         self.logger.info("Starting main processing loop...")
-        self.logger.info(f"Checking for submissions every {self.config['google_sheets'].get('check_interval', 300)} seconds")
+        self.logger.info(f"Checking for submissions every {self.config['google_sheets'].get('check_interval', 60)} seconds")
         
-        check_interval = self.config['google_sheets'].get('check_interval', 300)
+        check_interval = self.config['google_sheets'].get('check_interval', 60)
         
         while self.running:
             try:

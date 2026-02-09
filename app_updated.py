@@ -5,7 +5,7 @@ from datetime import datetime
 import io
 
 # Import your existing backend logic
-from main import DPAssistOrchestrator
+from main import PortfoliosOrchestrator
 
 # --- Page Config ---
 st.set_page_config(
@@ -30,7 +30,7 @@ class StreamlitLogHandler(logging.Handler):
 @st.cache_resource
 def get_orchestrator():
     """Initializes the backend system once."""
-    return DPAssistOrchestrator()
+    return PortfoliosOrchestrator()
 
 # --- Main App Interface ---
 def main():
@@ -61,9 +61,70 @@ def main():
         # Combine into a datetime object
         selected_deadline = datetime.combine(new_date, new_time)
         
-        # 2. Rubric Upload
+        # 2. Rubric Upload (Multiple)
         st.subheader("2. Upload Rubric")
-        uploaded_rubric = st.file_uploader("Upload Rubric (PDF, Docx, or Txt)", type=['pdf', 'docx', 'txt'])
+        st.caption("Upload multiple rubrics and assign them to units/projects.")
+        
+        # File uploader that accepts multiple files
+        uploaded_rubrics = st.file_uploader(
+            "Upload Rubric (PDF, Docx, or Txt)", 
+            type=['pdf', 'docx', 'txt', 'md'],
+            accept_multiple_files=True,
+            help="Limit 200MB per file • PDF, DOCX, TXT, MD supported"
+        )
+        
+        # Store rubrics in session state with unit mapping
+        if 'rubric_mapping' not in st.session_state:
+            st.session_state.rubric_mapping = {}
+        
+        # If files uploaded, let teacher assign them to units
+        if uploaded_rubrics:
+            st.write(f"**{len(uploaded_rubrics)} rubric(s) uploaded:**")
+            
+            for rubric_file in uploaded_rubrics:
+                col_a, col_b = st.columns([2, 1])
+                
+                with col_a:
+                    st.write(f"📄 {rubric_file.name}")
+                
+                with col_b:
+                    # Let teacher specify which unit this rubric is for
+                    unit_name = st.text_input(
+                        "Unit/Project", 
+                        key=f"unit_{rubric_file.name}",
+                        placeholder="e.g., Plane and Simple",
+                        label_visibility="collapsed"
+                    )
+                
+                # Read and store rubric content
+                if unit_name:
+                    try:
+                        import PyPDF2
+                        import docx
+                        
+                        file_text = ""
+                        if rubric_file.name.endswith('.pdf'):
+                            reader = PyPDF2.PdfReader(rubric_file)
+                            file_text = '\n'.join(page.extract_text() for page in reader.pages)
+                        elif rubric_file.name.endswith('.docx'):
+                            doc = docx.Document(rubric_file)
+                            file_text = '\n'.join(p.text for p in doc.paragraphs)
+                        else:  # txt or md
+                            stringio = io.StringIO(rubric_file.getvalue().decode("utf-8"))
+                            file_text = stringio.read()
+                        
+                        # Store in session state
+                        st.session_state.rubric_mapping[unit_name] = file_text
+                        
+                    except Exception as e:
+                        st.error(f"Error reading {rubric_file.name}: {e}")
+            
+            if st.session_state.rubric_mapping:
+                st.success(f"✅ {len(st.session_state.rubric_mapping)} rubric(s) loaded")
+                # Show loaded rubrics
+                with st.expander("View Loaded Rubrics"):
+                    for unit, rubric in st.session_state.rubric_mapping.items():
+                        st.write(f"**{unit}:** {len(rubric)} characters")
         
         # 3. Student Exceptions (Extensions)
         st.subheader("3. Manage Exceptions")
@@ -90,33 +151,10 @@ def main():
             orchestrator.timeliness_agent.deadline = selected_deadline
             st.toast(f"Deadline set to: {selected_deadline}")
             
-            # 2. Update Rubric in Agent (if uploaded)
-            if uploaded_rubric:
-                # Read file content based on type
-                try:
-                    import PyPDF2
-                    import docx
-                    
-                    file_text = ""
-                    if uploaded_rubric.name.endswith('.pdf'):
-                        reader = PyPDF2.PdfReader(uploaded_rubric)
-                        file_text = '\n'.join(page.extract_text() for page in reader.pages)
-                    elif uploaded_rubric.name.endswith('.docx'):
-                        doc = docx.Document(uploaded_rubric)
-                        file_text = '\n'.join(p.text for p in doc.paragraphs)
-                    else: # txt
-                        stringio = io.StringIO(uploaded_rubric.getvalue().decode("utf-8"))
-                        file_text = stringio.read()
-                    
-                    # Inject into Feedback Generator
-                    orchestrator.feedback_generator.rubric_text = file_text
-                    st.toast("✅ Custom Rubric Loaded")
-                except Exception as e:
-                    st.error(f"Error reading rubric: {e}")
-
-            # 3. Setup Logging
+            # 2. Setup Logging
             logger = logging.getLogger()
-            for h in logger.handlers: logger.removeHandler(h) # Clear old
+            for h in logger.handlers: 
+                logger.removeHandler(h)  # Clear old handlers
             
             handler = StreamlitLogHandler(log_container)
             formatter = logging.Formatter('%(asctime)s - %(message)s', datefmt='%H:%M:%S')
@@ -139,23 +177,46 @@ def main():
                         # Get Student Info
                         student_name = f"{submission.get('First Name', '')} {submission.get('Last Name', '')}"
                         student_email = submission.get('Email', '')
+                        student_unit = submission.get('Select the unit', '').strip()
                         
-                        st.write(f"**Analyzing:** {student_name}")
+                        st.write(f"**Analyzing:** {student_name} - {student_unit}")
                         
                         # CHECK FOR EXCEPTIONS (EXTENSIONS)
-                        # If student is in the 'Exempt' list, we temporarily trick the agent 
-                        # by moving the deadline into the future just for this student.
                         original_deadline = orchestrator.timeliness_agent.deadline
                         if student_email in exempt_emails:
                             logger.info(f"⚠️ Student {student_name} has an extension. Bypassing late check.")
                             # Set deadline to next year so they are always "on time"
                             orchestrator.timeliness_agent.deadline = datetime(2030, 1, 1)
                         
+                        # FIND MATCHING RUBRIC FOR THIS STUDENT
+                        rubric_to_use = None
+                        if st.session_state.rubric_mapping:
+                            # Try exact match first
+                            if student_unit in st.session_state.rubric_mapping:
+                                rubric_to_use = st.session_state.rubric_mapping[student_unit]
+                                logger.info(f"✓ Using rubric for unit: {student_unit}")
+                            else:
+                                # Try fuzzy matching (case-insensitive partial match)
+                                for unit_name, rubric_text in st.session_state.rubric_mapping.items():
+                                    if unit_name.lower() in student_unit.lower() or student_unit.lower() in unit_name.lower():
+                                        rubric_to_use = rubric_text
+                                        logger.info(f"✓ Fuzzy matched rubric: {unit_name}")
+                                        break
+                                
+                                if not rubric_to_use:
+                                    logger.warning(f"⚠️ No rubric found for unit '{student_unit}', using default")
+                        
+                        # Temporarily set the rubric for this student
+                        original_rubric = orchestrator.feedback_generator.rubric_text
+                        if rubric_to_use:
+                            orchestrator.feedback_generator.rubric_text = rubric_to_use
+                        
                         # Process
                         success = orchestrator.process_submission(submission)
                         
-                        # Restore original deadline for next student
+                        # Restore original settings
                         orchestrator.timeliness_agent.deadline = original_deadline
+                        orchestrator.feedback_generator.rubric_text = original_rubric
                         
                         status = "✅ Done" if success else "❌ Failed"
                         st.caption(f"{status} - {student_name}")
@@ -177,6 +238,13 @@ def main():
             st.info("Spreadsheet link unavailable")
             
         st.info(f"**Current Deadline Config:**\n\n{selected_deadline.strftime('%B %d, %Y at %I:%M %p')}")
+        
+        # Show loaded rubrics summary
+        if st.session_state.get('rubric_mapping'):
+            st.markdown("---")
+            st.subheader("Loaded Rubrics")
+            for unit in st.session_state.rubric_mapping.keys():
+                st.write(f"✓ {unit}")
 
 if __name__ == "__main__":
     main()
