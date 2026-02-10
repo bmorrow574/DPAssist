@@ -68,13 +68,14 @@ class CaptionAnalyzerAgent:
         
         return image
     
-    def analyze_captions(self, screenshot_bytes: bytes, portfolio_description: str = "") -> Dict[str, Any]:
+    def analyze_captions(self, screenshot_bytes: bytes, portfolio_description: str = "", rubric_text: str = "") -> Dict[str, Any]:
         """
         Use Gemini to analyze media captions in the screenshot
         
         Args:
             screenshot_bytes: Screenshot of the portfolio page
             portfolio_description: Text description of what the portfolio is about
+            rubric_text: The grading rubric (optional)
             
         Returns:
             Analysis results dictionary
@@ -93,6 +94,22 @@ class CaptionAnalyzerAgent:
             
             strictness_instruction = strictness_descriptions.get(self.strictness_level, strictness_descriptions[3])
             
+            # Add rubric context if available
+            rubric_context = ""
+            if rubric_text:
+                rubric_context = f"""
+
+GRADING RUBRIC:
+{rubric_text}
+
+CRITICAL SCORING INSTRUCTIONS:
+- READ THE RUBRIC ABOVE CAREFULLY to understand the point values
+- Look for the MAXIMUM POINTS for caption/media quality (often in sections like "Captions", "Media", "Modeling", etc.)
+- DO NOT use a 0-100 scale unless the rubric explicitly uses 100 points
+- Score based on the ACTUAL rubric point values you see above
+- Reference SPECIFIC rubric section names in your feedback (e.g., "Based on the 'Modeling' section...")
+"""
+            
             prompt = f"""You are evaluating a student's digital portfolio for a teacher. 
 Please analyze the media (images, videos, embedded content) visible in this screenshot and evaluate:
 
@@ -101,6 +118,7 @@ Please analyze the media (images, videos, embedded content) visible in this scre
 3. **Caption Relevance**: Are the media and their captions relevant to the portfolio content?
 
 Context: {portfolio_description if portfolio_description else "General portfolio assignment"}
+{rubric_context}
 
 Please {strictness_instruction}.
 
@@ -109,8 +127,10 @@ MEDIA_COUNT: [number of media elements you can identify]
 MISSING_CAPTIONS: [number of media without captions]
 POOR_CAPTIONS: [number of media with inadequate captions]
 IRRELEVANT_MEDIA: [number of media that seem unrelated to content]
-OVERALL_SCORE: [0-100 score for caption quality]
-FEEDBACK: [2-3 sentences of constructive feedback for the student]
+RUBRIC_MAX_POINTS: [maximum points from rubric for captions/media, or "N/A" if no rubric]
+POINTS_EARNED: [points earned based on rubric criteria, or "N/A"]
+OVERALL_SCORE: [score in "X/Y points" format if rubric exists, or 0-100 percentage if no rubric]
+FEEDBACK: [2-3 sentences of constructive feedback referencing specific rubric sections if available]
 ISSUES: [specific issues found, one per line, or "None"]
 """
             
@@ -146,7 +166,10 @@ ISSUES: [specific issues found, one per line, or "None"]
             'missing_captions': 0,
             'poor_captions': 0,
             'irrelevant_media': 0,
+            'rubric_max_points': None,
+            'points_earned': None,
             'overall_score': 0,
+            'overall_score_text': "",
             'feedback': "",
             'issues': []
         }
@@ -169,9 +192,34 @@ ISSUES: [specific issues found, one per line, or "None"]
                 elif line.startswith('IRRELEVANT_MEDIA:'):
                     result['irrelevant_media'] = int(line.split(':', 1)[1].strip())
                 
+                elif line.startswith('RUBRIC_MAX_POINTS:'):
+                    max_points_str = line.split(':', 1)[1].strip()
+                    if max_points_str != 'N/A':
+                        try:
+                            result['rubric_max_points'] = int(max_points_str)
+                        except:
+                            result['rubric_max_points'] = None
+                
+                elif line.startswith('POINTS_EARNED:'):
+                    points_earned_str = line.split(':', 1)[1].strip()
+                    if points_earned_str != 'N/A':
+                        try:
+                            result['points_earned'] = int(points_earned_str)
+                        except:
+                            result['points_earned'] = None
+                
                 elif line.startswith('OVERALL_SCORE:'):
                     score_str = line.split(':', 1)[1].strip()
-                    result['overall_score'] = int(score_str)
+                    result['overall_score_text'] = score_str  # Store full text like "10/50 points"
+                    # Try to extract numeric value
+                    try:
+                        if '/' in score_str:
+                            parts = score_str.split('/')
+                            result['overall_score'] = int(parts[0].strip())
+                        else:
+                            result['overall_score'] = int(score_str.split()[0])  # Handle "10 points" format
+                    except:
+                        result['overall_score'] = 0
                 
                 elif line.startswith('FEEDBACK:'):
                     result['feedback'] = line.split(':', 1)[1].strip()
@@ -234,7 +282,8 @@ ISSUES: [specific issues found, one per line, or "None"]
     
     def process_submission(self, worksheet, submission: Dict[str, Any], 
                           column_mapping: Dict[str, str], 
-                          screenshot_bytes: bytes) -> Dict[str, Any]:
+                          screenshot_bytes: bytes, 
+                          rubric_text: str = "") -> Dict[str, Any]:
         """
         Process a single submission for caption analysis
         
@@ -243,6 +292,7 @@ ISSUES: [specific issues found, one per line, or "None"]
             submission: Submission dictionary
             column_mapping: Column name mapping
             screenshot_bytes: Screenshot of portfolio page
+            rubric_text: Grading rubric (optional)
             
         Returns:
             Result dictionary with analysis
@@ -252,8 +302,8 @@ ISSUES: [specific issues found, one per line, or "None"]
             unit_col = column_mapping.get('unit', 'Unit')
             portfolio_description = submission.get(unit_col, "")
             
-            # Analyze captions
-            analysis = self.analyze_captions(screenshot_bytes, portfolio_description)
+            # Analyze captions with rubric
+            analysis = self.analyze_captions(screenshot_bytes, portfolio_description, rubric_text)
             
             if analysis.get('success'):
                 # Update sheet

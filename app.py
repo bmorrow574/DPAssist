@@ -1,11 +1,15 @@
+import os
 import streamlit as st
+
+st.write("Config path:", os.path.abspath("config.yaml"))
+
 import logging
 import pandas as pd
 from datetime import datetime
 import io
 
 # Import your existing backend logic
-from main import PortfoliosOrchestrator
+from main import DPAssistOrchestrator
 
 # --- Page Config ---
 st.set_page_config(
@@ -30,7 +34,7 @@ class StreamlitLogHandler(logging.Handler):
 @st.cache_resource
 def get_orchestrator():
     """Initializes the backend system once."""
-    return PortfoliosOrchestrator()
+    return DPAssistOrchestrator()
 
 # --- Main App Interface ---
 def main():

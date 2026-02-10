@@ -1,10 +1,11 @@
 """
-DPAssist Main Orchestrator
+PortfoliOS Main Orchestrator
 
 This is the main program that coordinates all the specialized agents.
 It runs continuously in the background, processing portfolio submissions.
 """
 
+import os
 import time
 import logging
 import signal
@@ -40,7 +41,9 @@ class DPAssistOrchestrator:
             config_path: Path to configuration file
         """
         # Load configuration
-        self.config = load_config(config_path)
+        self.config_path = config_path
+        self.config = load_config(self.config_path)
+
         
         # Setup logging
         self.logger = setup_logging(self.config)
@@ -72,13 +75,13 @@ class DPAssistOrchestrator:
         # Flag for graceful shutdown
         self.running = True
         
-        # Setup signal handlers for graceful shutdown (Safe for Streamlit)
-        try:
+        # Setup signal handlers for graceful shutdown
+        import threading
+
+        if threading.current_thread() is threading.main_thread():
             signal.signal(signal.SIGINT, self._signal_handler)
             signal.signal(signal.SIGTERM, self._signal_handler)
-        except ValueError:
-            # Signals only work in the main thread; skip this if running in Streamlit
-            self.logger.warning("Running in a background thread (Streamlit) - signal handlers disabled.")
+
     
     def _signal_handler(self, signum, frame):
         """
@@ -86,6 +89,19 @@ class DPAssistOrchestrator:
         """
         self.logger.info("Shutdown signal received. Finishing current task...")
         self.running = False
+    def reload_config(self):
+        try:
+            self.config = load_config(self.config_path)
+
+            # Debug: prove which config file and what deadline the worker loaded
+            abs_path = os.path.abspath(self.config_path)
+            deadline = self.config.get("project", {}).get("deadline") or self.config.get("deadline")
+            self.logger.info(f"[CONFIG] loaded from {abs_path} | deadline={deadline}")
+
+        except Exception as e:
+            self.logger.error(f"Failed to reload config: {e}")
+
+
     
     def process_submission(self, submission: Dict[str, Any]) -> bool:
         """
@@ -162,8 +178,11 @@ class DPAssistOrchestrator:
             screenshot = media_result.get('screenshot') or link_result.get('screenshot')
             
             if screenshot:
+                # Get rubric text if available
+                rubric_text = self.feedback_generator.rubric_text or ""
+                
                 caption_result = self.caption_analyzer.process_submission(
-                    self.worksheet, submission, self.column_mapping, screenshot
+                    self.worksheet, submission, self.column_mapping, screenshot, rubric_text
                 )
                 all_results['caption_analysis'] = caption_result
             else:
@@ -243,11 +262,19 @@ class DPAssistOrchestrator:
         Main run loop - continuously monitors and processes submissions
         """
         self.logger.info("Starting main processing loop...")
-        self.logger.info(f"Checking for submissions every {self.config['google_sheets'].get('check_interval', 60)} seconds")
+        self.logger.info(f"Checking for submissions every {self.config['google_sheets'].get('check_interval', 300)} seconds")
         
-        check_interval = self.config['google_sheets'].get('check_interval', 60)
+        check_interval = self.config['google_sheets'].get('check_interval', 300)
         
         while self.running:
+            # Reload config each cycle (allows Streamlit edits to apply)
+            self.reload_config()
+
+            # Refresh agents that depend on config (deadline, rubric)
+            self.timeliness_agent = TimelinessAgent(self.config, self.logger)
+            self.feedback_generator = FeedbackGeneratorAgent(self.config, self.logger)
+
+
             try:
                 # Check for pending submissions
                 pending = self.submission_monitor.get_pending_submissions()
@@ -280,7 +307,7 @@ class DPAssistOrchestrator:
                 # Wait a bit before retrying
                 time.sleep(60)
         
-        self.logger.info("DPAssist shutting down gracefully")
+        self.logger.info("PortfoliOS shutting down gracefully")
 
 
 def main():
@@ -289,12 +316,13 @@ def main():
     """
     try:
         print("=" * 70)
-        print("DPAssist - Multi-Agent Portfolio Feedback System")
+        print("PortfoliOS - Multi-Agent Portfolio Feedback System")
         print("=" * 70)
         print()
         print("Initializing...")
         
         orchestrator = DPAssistOrchestrator()
+
         
         print("✓ System initialized successfully")
         print()

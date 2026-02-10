@@ -89,6 +89,33 @@ class FeedbackGeneratorAgent:
         
         # Fall back to text in config
         return rubric_config.get('text', '')
+    def extract_rubric_schema(self) -> str:
+        """
+        Ask the AI to extract scoring structure from the rubric.
+        Returns JSON as text.
+        """
+        prompt = f"""
+    You are extracting grading rules from a rubric.
+
+    TASK:
+    - Identify the TOTAL possible points for the assignment
+    - Identify each rubric section and its MAX points
+    - If totals do not sum cleanly, still report the stated total
+
+    Return ONLY valid JSON in this format:
+    {{
+    "total_points": number,
+    "sections": [
+        {{"name": "Section name", "max_points": number}}
+    ]
+    }}
+
+    RUBRIC TEXT:
+    {self.rubric_text}
+    """
+        response = self.model.generate_content(prompt)
+        return response.text.strip()
+
     
     def is_past_deadline(self) -> bool:
         """
@@ -177,7 +204,7 @@ EVALUATION RESULTS:
 {f"✓ All media loads correctly ({media_check.get('accessible_count', 0)} items)" if not media_check.get('has_issues') else f"✗ {media_check.get('broken_count', 0)} media items are broken"}
 
 4. CAPTION QUALITY:
-Score: {caption_analysis.get('overall_score', 0)}/100
+Caption Quality Score: {caption_analysis.get('overall_score', 'N/A')}
 {f"Issues: {caption_analysis.get('missing_captions', 0)} missing, {caption_analysis.get('poor_captions', 0)} poor quality" if caption_analysis.get('has_issues') else "✓ Good caption quality"}
 
 YOUR TASK:
@@ -377,6 +404,8 @@ def main():
     print(f"Deadline: {agent.deadline}")
     print(f"Past deadline: {agent.is_past_deadline()}")
     print(f"Rubric loaded: {len(agent.rubric_text) > 0}")
+
+
 
 
 if __name__ == '__main__':
