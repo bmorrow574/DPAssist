@@ -73,3 +73,12 @@ htmlcov/
 
 # Keep example config
 !config.example.yaml
+
+# Portfolio Reviewer - Protect Credentials
+portfolio_reviewer/.env
+portfolio_reviewer/service-account-credentials.json
+portfolio_reviewer/rubrics/
+portfolio_reviewer/processing_state.json
+*.json
+!package.json
+.env
