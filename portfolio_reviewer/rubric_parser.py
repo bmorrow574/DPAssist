@@ -74,15 +74,51 @@ class RubricParser:
             'categories': []
         }
         
-        # Find total points
+        # Find total points - try multiple patterns
         total_match = re.search(r'(\d+)\s+Points?\s+Total', text, re.IGNORECASE)
+        if not total_match:
+            # Try alternative pattern
+            total_match = re.search(r'Total\s*[:\-]?\s*(\d+)\s+points?', text, re.IGNORECASE)
+        
         if total_match:
             rubric_data['total_points'] = int(total_match.group(1))
         
-        # Split into sections
-        # Pattern: "1. Title – XX points"
-        section_pattern = r'(\d+)\.\s+([^–\n]+)\s*[–-]\s*(\d+)\s+points?'
-        sections = list(re.finditer(section_pattern, text, re.IGNORECASE))
+        # Try multiple section patterns
+        # Pattern 1: "1. Title – XX points"
+        section_pattern1 = r'(\d+)\.\s+([^–\n]+)\s*[–-]\s*(\d+)\s+points?'
+        sections = list(re.finditer(section_pattern1, text, re.IGNORECASE))
+        
+        # Pattern 2: "Title (XX points)" or "Title - XX points"
+        if not sections:
+            section_pattern2 = r'([A-Z][^(\n]+?)\s*[\(\-]\s*(\d+)\s+points?\)?'
+            matches = list(re.finditer(section_pattern2, text, re.IGNORECASE))
+            # Convert to same format
+            sections = []
+            for i, match in enumerate(matches, 1):
+                # Create a mock match object
+                class MockMatch:
+                    def __init__(self, num, title, points, start, end):
+                        self._groups = (str(num), title.strip(), str(points))
+                        self._start = start
+                        self._end = end
+                    def group(self, n):
+                        return self._groups[n-1]
+                    def start(self):
+                        return self._start
+                    def end(self):
+                        return self._end
+                
+                sections.append(MockMatch(i, match.group(1), match.group(2), match.start(), match.end()))
+        
+        if not sections:
+            print(f"No sections found in rubric. Text preview: {text[:500]}")
+            # Create a single default section with all points
+            if rubric_data['total_points'] > 0:
+                sections = [type('obj', (object,), {
+                    'group': lambda self, n: ['1', rubric_name, str(rubric_data['total_points'])][n-1],
+                    'start': lambda: 0,
+                    'end': lambda: len(text)
+                })()]
         
         for i, match in enumerate(sections):
             section_num = match.group(1)
@@ -100,6 +136,15 @@ class RubricParser:
             
             # Parse levels within this section
             levels = self._parse_levels(section_content, section_points)
+            
+            # If no levels found, create default levels
+            if not levels:
+                levels = [
+                    {'label': 'Exceeds', 'descriptor': 'Exceeds expectations', 'points': section_points},
+                    {'label': 'Meets', 'descriptor': 'Meets expectations', 'points': int(section_points * 0.8)},
+                    {'label': 'Approaches', 'descriptor': 'Approaches expectations', 'points': int(section_points * 0.6)},
+                    {'label': 'Needs Work', 'descriptor': 'Needs improvement', 'points': 0}
+                ]
             
             # Create criterion
             criterion_id = f"{section_num}_{section_title.lower().replace(' ', '_').replace('&', 'and')[:30]}"

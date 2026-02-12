@@ -26,6 +26,7 @@ class Config:
     
     # Gmail
     TEACHER_EMAIL = os.getenv('TEACHER_EMAIL', '')
+    GMAIL_APP_PASSWORD = os.getenv('GMAIL_APP_PASSWORD', '')
     
     # Background Service
     CHECK_INTERVAL_SECONDS = int(os.getenv('CHECK_INTERVAL_SECONDS', '60'))
@@ -48,6 +49,9 @@ class Config:
         
         if not cls.TEACHER_EMAIL:
             errors.append("TEACHER_EMAIL not set in .env")
+        
+        if not cls.GMAIL_APP_PASSWORD:
+            errors.append("GMAIL_APP_PASSWORD not set in .env")
         
         creds_path = Path(cls.GOOGLE_CREDENTIALS_PATH)
         if not creds_path.exists():

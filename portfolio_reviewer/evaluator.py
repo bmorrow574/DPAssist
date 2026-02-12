@@ -33,7 +33,19 @@ class PortfolioEvaluator:
     """Evaluate portfolios using Gemini with strict grading rules"""
     
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-1.5-pro')
+        # Try models in order until one works (same as agent.py)
+        preferred_models = ["gemini-2.5-pro", "gemini-pro-latest", "gemini-1.5-pro"]
+        
+        for model_name in preferred_models:
+            try:
+                self.model = genai.GenerativeModel(model_name)
+                print(f"✓ Using Gemini model: {model_name}")
+                return
+            except Exception as e:
+                print(f"✗ Model {model_name} not available: {e}")
+                continue
+        
+        raise Exception("No Gemini models available")
     
     def evaluate(
         self,

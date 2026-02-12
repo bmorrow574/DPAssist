@@ -1,5 +1,6 @@
 """
 Gmail integration for creating draft emails with scored feedback
+Uses IMAP (like agent.py) - works with App Password, no admin needed
 """
 import sys
 from pathlib import Path
@@ -8,39 +9,19 @@ from pathlib import Path
 parent_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(parent_dir))
 
-from google.oauth2.service_account import Credentials
-from googleapiclient.discovery import build
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import base64
+import imaplib
+import time
+from email.message import EmailMessage
 from typing import Dict, List
 from config import config
 from schemas.output import RunOutput
 
 
 class GmailDraftCreator:
-    """Create draft emails in Gmail with student feedback"""
+    """Create draft emails in Gmail using IMAP"""
     
     def __init__(self):
-        self.service = None
-        self._connect()
-    
-    def _connect(self):
-        """Connect to Gmail API using service account with domain delegation"""
-        scopes = ['https://www.googleapis.com/auth/gmail.compose']
-        
-        try:
-            credentials = Credentials.from_service_account_file(
-                config.GOOGLE_CREDENTIALS_PATH,
-                scopes=scopes,
-                subject=config.TEACHER_EMAIL  # Domain delegation
-            )
-            
-            self.service = build('gmail', 'v1', credentials=credentials)
-        except Exception as e:
-            print(f"Gmail API connection error: {e}")
-            print("Note: Service account needs domain-wide delegation for Gmail access")
-            self.service = None
+        pass
     
     def create_feedback_draft(
         self,
@@ -61,23 +42,45 @@ class GmailDraftCreator:
         Returns:
             True if successful, False otherwise
         """
-        if not self.service:
-            print("Gmail service not available - cannot create draft")
-            return False
-        
         try:
             # Build email content
             subject = f"Portfolio Feedback: {rubric_title}"
-            body = self._build_email_body(student_name, rubric_title, output)
+            body_html = self._build_email_body(student_name, rubric_title, output)
             
-            # Create message
-            message = MIMEMultipart('alternative')
-            message['To'] = student_email
-            message['Subject'] = subject
+            # Create email message
+            msg = EmailMessage()
+            msg['From'] = config.TEACHER_EMAIL
+            msg['To'] = student_email
+            msg['Subject'] = subject
+            msg.set_content(body_html, subtype='html')
             
-            # Add HTML body
-            html_part = MIMEText(body, 'html')
-            message.attach(html_part)
+            # Connect to Gmail via IMAP
+            imap = imaplib.IMAP4_SSL("imap.gmail.com")
+            imap.login(config.TEACHER_EMAIL, config.GMAIL_APP_PASSWORD)
+            
+            # Append to Drafts folder
+            drafts_mailbox = '"[Gmail]/Drafts"'
+            typ, data = imap.append(
+                drafts_mailbox,
+                "",  # Flags
+                imaplib.Time2Internaldate(time.time()),
+                msg.as_bytes(),
+            )
+            
+            imap.logout()
+            
+            if typ != "OK":
+                print(f"IMAP append failed: {typ}, {data}")
+                return False
+            
+            print(f"✓ Draft created for {student_email}")
+            return True
+            
+        except Exception as e:
+            print(f"Error creating Gmail draft: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
             
             # Encode message
             raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
@@ -112,6 +115,12 @@ class GmailDraftCreator:
         # Calculate total score
         total_score = sum(r.score for r in output.results if r.score is not None)
         total_possible = sum(r.max_points for r in output.results if r.max_points is not None)
+        
+        # Calculate percentage safely (avoid division by zero)
+        if total_possible > 0:
+            percentage = (total_score / total_possible) * 100
+        else:
+            percentage = 0
         
         html = f"""
 <!DOCTYPE html>
@@ -202,7 +211,7 @@ class GmailDraftCreator:
     
     <div class="score-summary">
         <h2>Overall Score: {total_score:.1f} / {total_possible:.1f}</h2>
-        <p>Percentage: {(total_score/total_possible*100):.1f}%</p>
+        <p>Percentage: {percentage:.1f}%</p>
     </div>
     
     <h2>Detailed Feedback by Criterion</h2>

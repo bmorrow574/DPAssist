@@ -132,10 +132,11 @@ class GoogleSheetsClient:
                 last_name = record[key]
             elif 'email' in key_lower:
                 parsed['email'] = record[key]
-            elif 'unit' in key_lower or 'select the unit' in key_lower:
-                parsed['unit'] = record[key]
-            elif 'portfolio' in key_lower or 'published' in key_lower:
+            elif 'copy' in key_lower and 'paste' in key_lower:
+                # Check portfolio URL BEFORE unit (to avoid conflicts)
                 parsed['portfolio_url'] = record[key]
+            elif 'select' in key_lower and 'unit' in key_lower:
+                parsed['unit'] = record[key]
             elif 'timestamp' in key_lower:
                 parsed['timestamp'] = record[key]
             elif 'class' in key_lower and 'section' in key_lower:
