@@ -69,3 +69,17 @@ class RunService:
 
     def get_last_output(self) -> Optional[RunOutput]:
         return self._last_output
+    
+    def list_runs(self) -> list[str]:
+        """
+        Return run_ids for all stored runs (in memory).
+        """
+        runs = self._storage.list_runs()
+        return sorted(runs.keys())
+
+    def get_run(self, run_id: str):
+        """
+        Retrieve a specific stored run by run_id.
+        """
+        return self._storage.get_run(run_id)
+   
