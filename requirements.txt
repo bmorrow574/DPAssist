@@ -1,32 +1,21 @@
-# PortfoliOS - Python Requirements
-# Install with: pip install -r requirements.txt
-
-# Core dependencies
 pandas>=2.0.0
 python-dateutil>=2.8.2
 PyYAML>=6.0
 
-# Google APIs
 gspread>=5.10.0
 google-auth>=2.22.0
 google-auth-oauthlib>=1.1.0
-google-generativeai>=0.3.0
+google-api-python-client==2.108.0
+google-auth-httplib2==0.2.0
+google-generativeai>=0.3.2
 
-# Web scraping and browser automation
 selenium>=4.12.0
 webdriver-manager>=4.0.0
-Pillow>=10.4.0
+Pillow==10.4.0
 
-# Document processing
 PyPDF2>=3.0.0
 python-docx>=0.8.11
 
-# Email (built-in to Python, but listing for clarity)
-# smtplib - built-in
-# imaplib - built-in
-# email - built-in
-
-# Portfolio Reviewer - Additional Dependencies
 python-dotenv==1.0.0
 beautifulsoup4==4.12.2
 requests==2.31.0
