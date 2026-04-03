@@ -194,7 +194,8 @@ class GoogleSheetsClient:
                 try:
                     model = genai.GenerativeModel(model_name)
                     break
-                except Exception:
+                except Exception as e:
+                    print(f"AI header mapping: model {model_name} not available: {e}")
                     continue
 
             if model is None:

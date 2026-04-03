@@ -77,6 +77,8 @@ class PortfolioEvaluator:
         # Call Gemini API with retry logic
         max_retries = 3
         base_delay = 5
+        # Error substrings that indicate a transient failure worth retrying
+        _retryable = ("504", "503", "429", "timeout", "timed out", "rate limit", "retry")
 
         for attempt in range(max_retries):
             try:
@@ -91,11 +93,17 @@ class PortfolioEvaluator:
                 return evaluation
 
             except Exception as e:
+                err_str = str(e).lower()
+                is_retryable = any(tag in err_str for tag in _retryable)
                 print(f"Error calling Gemini API: {e}")
-                if attempt < max_retries - 1:
+                if is_retryable and attempt < max_retries - 1:
+                    # Exponential backoff: base_delay * 2^attempt + random jitter
                     delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
                     print(f"  Retrying in {delay:.1f}s (attempt {attempt + 1}/{max_retries})...")
                     time.sleep(delay)
+                elif not is_retryable:
+                    print(f"  Non-retryable error, skipping retries.")
+                    break
                 else:
                     print(f"  All {max_retries} attempts failed.")
 
