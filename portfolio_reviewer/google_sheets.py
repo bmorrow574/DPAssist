@@ -230,15 +230,19 @@ class GoogleSheetsClient:
         first_name = None
         last_name = None
 
+        # Collect all candidate email values; prefer the one that looks like a real address
+        email_candidates: list = []
+
         for key in record.keys():
-            key_lower = key.lower()
+            key_lower = key.lower().strip()
 
             if 'first' in key_lower and 'name' in key_lower:
                 first_name = record[key]
             elif 'last' in key_lower and 'name' in key_lower:
                 last_name = record[key]
             elif 'email address' in key_lower or key_lower == 'email':
-                parsed['email'] = record[key]
+                if record[key] and str(record[key]).strip():
+                    email_candidates.append(record[key])
             elif (
                 ('copy' in key_lower and 'paste' in key_lower)
                 or ('publish' in key_lower and 'portf' in key_lower)
@@ -258,6 +262,11 @@ class GoogleSheetsClient:
             parsed['student_name'] = first_name
         elif last_name:
             parsed['student_name'] = last_name
+
+        # Pick the best email candidate: prefer values that contain "@"
+        if email_candidates:
+            preferred = next((v for v in email_candidates if str(v).strip() and '@' in str(v)), None)
+            parsed['email'] = preferred if preferred is not None else email_candidates[-1]
 
         if not parsed.get('portfolio_url'):
             return None
@@ -305,6 +314,13 @@ class GoogleSheetsClient:
             parsed['student_name'] = first_name
         elif last_name:
             parsed['student_name'] = last_name
+
+        # Validate email: if the mapped value doesn't look like an address, search all values
+        if not parsed.get('email') or '@' not in str(parsed.get('email', '')):
+            for value in record.values():
+                if value and str(value).strip() and '@' in str(value):
+                    parsed['email'] = value
+                    break
 
         # Validate required fields
         if not parsed.get('portfolio_url'):
