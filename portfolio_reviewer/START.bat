@@ -1,6 +1,6 @@
 @echo off
 echo ============================================
-echo Portfolio Reviewer - Starting Launcher
+echo DPAssist - Starting Launcher
 echo ============================================
 echo.
 

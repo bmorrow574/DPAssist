@@ -19,12 +19,12 @@ from google_sheets import GoogleSheetsClient
 def setup_page():
     """Configure Streamlit page"""
     st.set_page_config(
-        page_title="Portfolio Reviewer - Teacher Dashboard",
+        page_title="DPAssist - Teacher Dashboard",
         page_icon="📝",
         layout="wide"
     )
     
-    st.title("📝 Portfolio Reviewer - Teacher Dashboard")
+    st.title("📝 DPAssist - Teacher Dashboard")
 
 def check_configuration():
     """Check if system is properly configured"""
@@ -154,22 +154,31 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
         # Parse and display submissions
         display_data = []
         for record in submissions[-20:]:  # Last 20
-            parsed = GoogleSheetsClient.parse_submission(record)
-            if parsed:
-                # Get rubric info
-                unit = parsed.get('unit', 'Unknown')
-                due_date = rubric_manager.get_due_date(unit)
-                is_past_due = rubric_manager.is_past_due(unit)
-                
-                display_data.append({
-                    'Student': parsed.get('student_name', 'Unknown'),
-                    'Email': parsed.get('email', 'Unknown'),
-                    'Unit': unit,
-                    'Status': record.get('Status', 'Pending'),
-                    'Due': due_date.strftime('%Y-%m-%d') if due_date else 'Not set',
-                    'Past Due': '✅' if is_past_due else '⏰',
-                    'Submitted': parsed.get('timestamp', 'Unknown')
-                })
+            parsed = GoogleSheetsClient.parse_submission(record) or {}
+
+            # Extract email: prefer parsed result, then search raw record headers
+            email = parsed.get('email', '')
+            if not email:
+                for key, value in record.items():
+                    key_lower = key.lower()
+                    if ('email address' in key_lower or key_lower == 'email') and value and str(value).strip():
+                        email = value
+                        break
+
+            # Get rubric info
+            unit = parsed.get('unit', 'Unknown')
+            due_date = rubric_manager.get_due_date(unit)
+            is_past_due = rubric_manager.is_past_due(unit)
+
+            display_data.append({
+                'Student': parsed.get('student_name', 'Unknown'),
+                'Email': email,
+                'Unit': unit,
+                'Status': record.get('Status', 'Pending'),
+                'Due': due_date.strftime('%Y-%m-%d') if due_date else 'Not set',
+                'Past Due': '✅' if is_past_due else '⏰',
+                'Submitted': parsed.get('timestamp', record.get('Timestamp', 'Unknown'))
+            })
         
         if display_data:
             st.dataframe(
@@ -239,7 +248,7 @@ def main():
         )
         
         st.divider()
-        st.caption("Portfolio Reviewer v1.0")
+        st.caption("DPAssist v1.0")
         st.caption("Automated portfolio evaluation system")
     
     # Render selected page

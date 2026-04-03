@@ -74,7 +74,7 @@ class BackgroundService:
     def start(self):
         """Start the background service loop"""
         print("=" * 60)
-        print("PORTFOLIO REVIEWER - Background Service")
+        print("DPASSIST - Background Service")
         print("=" * 60)
         print(f"Checking every {config.CHECK_INTERVAL_SECONDS} seconds")
         print(f"Google Sheet: {config.GOOGLE_SHEET_ID}")

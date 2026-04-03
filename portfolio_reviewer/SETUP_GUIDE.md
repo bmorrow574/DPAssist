@@ -1,4 +1,4 @@
-# Portfolio Reviewer - Setup Guide
+# DPAssist - Setup Guide
 
 Complete setup instructions for teachers (no programming experience required).
 
@@ -175,7 +175,7 @@ CHECK_INTERVAL_SECONDS=60
 3. Double-click `launcher.py` to start
 
 ### Windows:
-1. Create a new text file called `Start Portfolio Reviewer.bat`
+1. Create a new text file called `Start DPAssist.bat`
 2. Add this line:
    ```
    python launcher.py

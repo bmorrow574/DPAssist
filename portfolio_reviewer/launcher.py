@@ -1,5 +1,5 @@
 """
-GUI Launcher for Portfolio Reviewer
+GUI Launcher for DPAssist
 Cross-platform launcher for Mac and Windows
 """
 import sys
@@ -18,11 +18,11 @@ import signal
 
 
 class PortfolioReviewerLauncher:
-    """GUI launcher for Portfolio Reviewer background service and teacher UI"""
+    """GUI launcher for DPAssist background service and teacher UI"""
     
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("Portfolio Reviewer Launcher")
+        self.root.title("DPAssist Launcher")
         self.root.geometry("700x600")
         
         # Track running processes
@@ -42,7 +42,7 @@ class PortfolioReviewerLauncher:
         
         title_label = ttk.Label(
             title_frame,
-            text="📝 Portfolio Reviewer Control Panel",
+            text="📝 DPAssist Control Panel",
             font=("Arial", 16, "bold")
         )
         title_label.pack()
@@ -133,7 +133,7 @@ class PortfolioReviewerLauncher:
         info_label.pack(pady=5)
         
         # Initial log message
-        self.log("Portfolio Reviewer Launcher started")
+        self.log("DPAssist Launcher started")
         self.log("Click 'Start Background Service' to begin processing submissions")
     
     def log(self, message):
