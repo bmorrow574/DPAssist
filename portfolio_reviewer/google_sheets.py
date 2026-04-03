@@ -188,7 +188,17 @@ class GoogleSheetsClient:
             import google.generativeai as genai
             genai.configure(api_key=config.GEMINI_API_KEY)
 
-            model = genai.GenerativeModel("gemini-2.5-pro")
+            preferred_models = ["gemini-2.5-pro", "gemini-pro-latest", "gemini-1.5-pro"]
+            model = None
+            for model_name in preferred_models:
+                try:
+                    model = genai.GenerativeModel(model_name)
+                    break
+                except Exception:
+                    continue
+
+            if model is None:
+                return None
 
             prompt = (
                 "You are mapping Google Form column headers to standardized field names.\n\n"
@@ -207,7 +217,7 @@ class GoogleSheetsClient:
                 '{"Header text here": "field_name", "Another header": "other"}'
             )
 
-            response = model.generate_content(prompt)
+            response = model.generate_content(prompt, request_options={"timeout": 60})
             response_text = response.text.strip()
 
             # Strip markdown code fences if present

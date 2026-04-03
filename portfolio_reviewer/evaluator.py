@@ -23,6 +23,7 @@ from schemas.output import (
 from schemas.artifact import Artifact, ArtifactSet, ArtifactType
 import json
 import time
+import random
 
 
 # Configure Gemini
@@ -73,21 +74,32 @@ class PortfolioEvaluator:
         # Build user prompt with portfolio content
         user_prompt = self._build_user_prompt(artifact_set, rubric)
         
-        # Call Gemini API
-        try:
-            response = self.model.generate_content([
-                system_prompt,
-                user_prompt
-            ])
-            
-            # Parse response
-            evaluation = self._parse_evaluation(response.text, rubric, artifact_set)
-            
-            return evaluation
-            
-        except Exception as e:
-            print(f"Error calling Gemini API: {e}")
-            return self._build_error_evaluation(rubric)
+        # Call Gemini API with retry logic
+        max_retries = 3
+        base_delay = 5
+
+        for attempt in range(max_retries):
+            try:
+                response = self.model.generate_content(
+                    [system_prompt, user_prompt],
+                    request_options={"timeout": 600}
+                )
+
+                # Parse response
+                evaluation = self._parse_evaluation(response.text, rubric, artifact_set)
+
+                return evaluation
+
+            except Exception as e:
+                print(f"Error calling Gemini API: {e}")
+                if attempt < max_retries - 1:
+                    delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                    print(f"  Retrying in {delay:.1f}s (attempt {attempt + 1}/{max_retries})...")
+                    time.sleep(delay)
+                else:
+                    print(f"  All {max_retries} attempts failed.")
+
+        return self._build_error_evaluation(rubric)
     
     def _build_artifact_set(self, portfolio_content: Dict) -> ArtifactSet:
         """Convert scraped content to ArtifactSet"""
@@ -313,7 +325,20 @@ CRITICAL: Your response must be valid JSON only. No markdown, no preamble, no ex
                 missing_artifacts=summary_data.get('missing_artifacts', []),
                 teacher_comment_draft=summary_data.get('teacher_comment_draft', '')
             )
-            
+
+            # Ensure all rubric criteria are present in results
+            result_ids = {r.criterion_id for r in results}
+            for criterion in rubric.all_criteria():
+                if criterion.id not in result_ids:
+                    results.append(CriterionResult(
+                        criterion_id=criterion.id,
+                        status=CriterionStatus.NOT_YET,
+                        confidence=ConfidenceLevel.LOW,
+                        evidence=[],
+                        feedback="Error: Criterion not evaluated by AI. Please review manually.",
+                        what_to_add=["Manual review required"]
+                    ))
+
             return {
                 'results': results,
                 'summary': summary
