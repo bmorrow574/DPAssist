@@ -170,7 +170,13 @@ class BackgroundService:
                 return False
             
             # Check if past due
-            is_past_due = self.rubric_manager.is_past_due(unit)
+            due_date = self.rubric_manager.get_due_date(unit)
+            current_date = datetime.now().date()
+            if due_date:
+                is_past_due = current_date > due_date.date()
+            else:
+                is_past_due = False
+            print(f"  Due date: {due_date.date() if due_date else 'None'}, Current date: {current_date}, Is past due: {is_past_due}")
             
             # Update status to "Processing"
             self.sheets_client.update_status(row_number, "Processing")
