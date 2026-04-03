@@ -1,6 +1,7 @@
 """
 Teacher UI - Streamlit interface for managing rubrics and monitoring submissions
 """
+import re
 import sys
 from pathlib import Path
 
@@ -15,6 +16,9 @@ from config import config
 from rubric_manager import RubricManager
 from rubric_parser import RubricParser
 from google_sheets import GoogleSheetsClient
+
+# Compiled pattern for minimal email address validation
+_EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 
 def setup_page():
     """Configure Streamlit page"""
@@ -156,19 +160,12 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
         for record in submissions[-20:]:  # Last 20
             parsed = GoogleSheetsClient.parse_submission(record) or {}
 
-            # Fallback email lookup: search raw record keys for "email address" or exact "email",
-            # then fall back to any value containing "@" (actual email address)
+            # Fallback email lookup: scan raw record values for something that
+            # looks like a real email address — works regardless of header name.
             email = parsed.get('email')
-            if not email or '@' not in str(email):
-                for key, value in record.items():
-                    key_lower = key.lower().strip()
-                    value_str = str(value).strip() if value else ''
-                    if ('email address' in key_lower or key_lower == 'email') and value_str and '@' in value_str:
-                        email = value
-                        break
-            if not email or '@' not in str(email):
+            if not email or not _EMAIL_RE.match(str(email)):
                 for value in record.values():
-                    if value and '@' in str(value):
+                    if isinstance(value, str) and _EMAIL_RE.match(value):
                         email = value
                         break
 

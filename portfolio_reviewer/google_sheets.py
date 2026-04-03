@@ -3,11 +3,15 @@ Google Sheets integration
 Reads student submissions from Google Form responses
 """
 import json
+import re
 import gspread
 from google.oauth2.service_account import Credentials
 from typing import List, Dict, Optional
 from datetime import datetime
 from config import config
+
+# Simple pattern that matches the minimal structure of an email address
+_EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 
 
 class GoogleSheetsClient:
@@ -230,8 +234,8 @@ class GoogleSheetsClient:
         first_name = None
         last_name = None
 
-        # Collect all candidate email values; prefer the one that looks like a real address
-        email_candidates: list = []
+        # Collect all candidate email values so we can pick the best one
+        email_candidates: List[str] = []
 
         for key in record.keys():
             key_lower = key.lower().strip()
@@ -256,17 +260,20 @@ class GoogleSheetsClient:
             elif 'class' in key_lower and 'section' in key_lower:
                 parsed['class_section'] = record[key]
 
+        # Pick the best email: prefer a value that looks like a real email address.
+        # We check all candidates and take the first with a valid email format.
+        # If none pass the check, fall back to the last candidate (Google Forms
+        # typically places the dedicated email question near the end of the form).
+        if email_candidates:
+            real_emails = [v for v in email_candidates if _EMAIL_RE.match(str(v))]
+            parsed['email'] = real_emails[0] if real_emails else email_candidates[-1]
+
         if first_name and last_name:
             parsed['student_name'] = f"{first_name} {last_name}"
         elif first_name:
             parsed['student_name'] = first_name
         elif last_name:
             parsed['student_name'] = last_name
-
-        # Pick the best email candidate: prefer values that contain "@"
-        if email_candidates:
-            preferred = next((v for v in email_candidates if str(v).strip() and '@' in str(v)), None)
-            parsed['email'] = preferred if preferred is not None else email_candidates[-1]
 
         if not parsed.get('portfolio_url'):
             return None
@@ -315,10 +322,11 @@ class GoogleSheetsClient:
         elif last_name:
             parsed['student_name'] = last_name
 
-        # Validate email: if the mapped value doesn't look like an address, search all values
-        if not parsed.get('email') or '@' not in str(parsed.get('email', '')):
+        # If the AI-mapped email doesn't look like a real email address, scan all
+        # record values for one that does (e.g. the header was renamed / mis-mapped).
+        if not _EMAIL_RE.match(str(parsed.get('email', ''))):
             for value in record.values():
-                if value and str(value).strip() and '@' in str(value):
+                if isinstance(value, str) and _EMAIL_RE.match(value):
                     parsed['email'] = value
                     break
 
