@@ -2,6 +2,7 @@
 Google Sheets integration
 Reads student submissions from Google Form responses
 """
+import json
 import gspread
 from google.oauth2.service_account import Credentials
 from typing import List, Dict, Optional
@@ -23,11 +24,23 @@ class GoogleSheetsClient:
             'https://www.googleapis.com/auth/spreadsheets',
             'https://www.googleapis.com/auth/drive'
         ]
-        
-        creds = Credentials.from_service_account_file(
-            config.GOOGLE_CREDENTIALS_PATH,
-            scopes=scopes
-        )
+
+        if config.GOOGLE_CREDENTIALS_JSON:
+            # Credentials provided as a JSON string (e.g. from Streamlit Cloud secrets)
+            try:
+                creds_info = json.loads(config.GOOGLE_CREDENTIALS_JSON)
+            except json.JSONDecodeError as e:
+                raise ValueError(
+                    "GOOGLE_CREDENTIALS_JSON is not valid JSON. "
+                    "Ensure the secret contains the full contents of your service account JSON file."
+                ) from e
+            creds = Credentials.from_service_account_info(creds_info, scopes=scopes)
+        else:
+            # Credentials provided as a file on disk (local development)
+            creds = Credentials.from_service_account_file(
+                config.GOOGLE_CREDENTIALS_PATH,
+                scopes=scopes
+            )
         
         self.client = gspread.authorize(creds)
         self.sheet = self.client.open_by_key(config.GOOGLE_SHEET_ID).sheet1
