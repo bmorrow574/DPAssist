@@ -143,10 +143,11 @@ class GoogleSheetsClient:
                 first_name = record[key]
             elif 'last' in key_lower and 'name' in key_lower:
                 last_name = record[key]
-            elif 'email' in key_lower:
+            elif 'email address' in key_lower or key_lower == 'email':
+                # Match "What is your email address?" but NOT
+                # "When is a good time to meet..." or other questions
                 parsed['email'] = record[key]
-            elif 'copy' in key_lower and 'paste' in key_lower:
-                # Check portfolio URL BEFORE unit (to avoid conflicts)
+            elif ('copy' in key_lower and 'paste' in key_lower) or ('publish' in key_lower and 'portf' in key_lower):
                 parsed['portfolio_url'] = record[key]
             elif 'select' in key_lower and 'unit' in key_lower:
                 parsed['unit'] = record[key]
