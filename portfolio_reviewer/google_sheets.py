@@ -245,7 +245,8 @@ class GoogleSheetsClient:
             elif 'last' in key_lower and 'name' in key_lower:
                 last_name = record[key]
             elif 'email address' in key_lower or key_lower == 'email':
-                email_candidates.append(record[key])
+                if record[key] and str(record[key]).strip():
+                    email_candidates.append(record[key])
             elif (
                 ('copy' in key_lower and 'paste' in key_lower)
                 or ('publish' in key_lower and 'portf' in key_lower)
