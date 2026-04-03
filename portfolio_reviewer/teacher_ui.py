@@ -1,6 +1,7 @@
 """
 Teacher UI - Streamlit interface for managing rubrics and monitoring submissions
 """
+import re
 import sys
 from pathlib import Path
 
@@ -15,6 +16,9 @@ from config import config
 from rubric_manager import RubricManager
 from rubric_parser import RubricParser
 from google_sheets import GoogleSheetsClient
+
+# Compiled pattern for minimal email address validation
+_EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 
 def setup_page():
     """Configure Streamlit page"""
@@ -165,6 +169,19 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
                         email = value
                         break
 
+            # Fallback email lookup: scan raw record values for something that
+            # looks like a real email address — works regardless of header name.
+            email = parsed.get('email')
+            if not email or not _EMAIL_RE.match(str(email)):
+                for value in record.values():
+                    if isinstance(value, str) and _EMAIL_RE.match(value):
+                        email = value
+                        break
+
+            # Discard any value that still doesn't look like an email address
+            if email and '@' not in str(email):
+                email = None
+
             # Get rubric info
             unit = parsed.get('unit', 'Unknown')
             due_date = rubric_manager.get_due_date(unit)
@@ -173,11 +190,13 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
             display_data.append({
                 'Student': parsed.get('student_name', 'Unknown'),
                 'Email': email,
+                'Email': email or 'Unknown',
                 'Unit': unit,
                 'Status': record.get('Status', 'Pending'),
                 'Due': due_date.strftime('%Y-%m-%d') if due_date else 'Not set',
                 'Past Due': '✅' if is_past_due else '⏰',
                 'Submitted': parsed.get('timestamp', record.get('Timestamp', 'Unknown'))
+                'Submitted': parsed.get('timestamp', 'Unknown')
             })
         
         if display_data:
