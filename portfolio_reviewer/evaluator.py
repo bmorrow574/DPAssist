@@ -100,6 +100,11 @@ class PortfolioEvaluator:
                 # Give up and return error evaluation
                 return self._build_error_evaluation(rubric)
         
+        # Safety net: if all retries were exhausted without returning, fall back
+        # to the error evaluation so we always return a complete result.
+        print("Warning: retry loop exhausted without returning - falling back to error evaluation")
+        return self._build_error_evaluation(rubric)
+    
     def _build_artifact_set(self, portfolio_content: Dict) -> ArtifactSet:
         """Convert scraped content to ArtifactSet"""
         artifacts = []
@@ -317,6 +322,23 @@ CRITICAL: Your response must be valid JSON only. No markdown, no preamble, no ex
                 )
                 results.append(result)
             
+            # Ensure ALL rubric criteria are present in the results.
+            # Gemini may return a partial response (e.g. on timeout), so any
+            # criteria it omitted must be filled in with a safe error entry so
+            # that downstream validation never raises "missing rubric criteria".
+            returned_ids = {r.criterion_id for r in results}
+            for criterion in rubric.all_criteria():
+                if criterion.id not in returned_ids:
+                    print(f"  Warning: Gemini response missing criterion '{criterion.id}' - adding error entry")
+                    results.append(CriterionResult(
+                        criterion_id=criterion.id,
+                        status=CriterionStatus.NOT_YET,
+                        confidence=ConfidenceLevel.LOW,
+                        evidence=[],
+                        feedback="Error: This criterion was not evaluated. Please review manually.",
+                        what_to_add=["Manual review required"]
+                    ))
+            
             summary_data = data.get('summary', {})
             summary = RunSummary(
                 strengths=summary_data.get('strengths', []),
@@ -337,9 +359,12 @@ CRITICAL: Your response must be valid JSON only. No markdown, no preamble, no ex
     
     def _build_error_evaluation(self, rubric: RubricVersion) -> Dict:
         """Build error evaluation when AI fails"""
+        all_criteria = rubric.all_criteria()
+        print(f"  Building error evaluation for {len(all_criteria)} criteria: {[c.id for c in all_criteria]}")
         results = []
         
-        for criterion in rubric.all_criteria():
+        for criterion in all_criteria:
+            print(f"    Including criterion: {criterion.id}")
             result = CriterionResult(
                 criterion_id=criterion.id,
                 status=CriterionStatus.NOT_YET,
