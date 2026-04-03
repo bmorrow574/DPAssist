@@ -11,8 +11,9 @@ sys.path.insert(0, str(parent_dir))
 
 import imaplib
 import time
+from datetime import datetime
 from email.message import EmailMessage
-from typing import Dict, List
+from typing import Dict, List, Optional
 from config import config
 from schemas.output import RunOutput
 
@@ -81,29 +82,333 @@ class GmailDraftCreator:
             import traceback
             traceback.print_exc()
             return False
-            
-            # Encode message
-            raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
-            
-            # Create draft
-            draft = {
-                'message': {
-                    'raw': raw_message
-                }
-            }
-            
-            draft = self.service.users().drafts().create(
-                userId='me',
-                body=draft
-            ).execute()
-            
-            print(f"Draft created for {student_name} ({student_email})")
+
+    def create_teacher_draft(
+        self,
+        student_email: str,
+        student_name: str,
+        unit: str,
+        rubric_title: str,
+        output: RunOutput,
+        submission_date: Optional[str] = None,
+        due_date: Optional[datetime] = None,
+    ) -> bool:
+        """
+        Create a draft email in the teacher's inbox for a past-due submission.
+
+        The draft is addressed to the teacher (not the student), includes scores
+        and full rubric feedback, and is ready for the teacher to review, edit,
+        and send.
+
+        Args:
+            student_email: Student's email address (shown in the draft body).
+            student_name: Student's display name.
+            unit: Unit/assignment name (used in subject line).
+            rubric_title: Title of the rubric (used in subject line).
+            output: RunOutput with full evaluation results including scores.
+            submission_date: When the submission was received (optional).
+            due_date: Assignment due date, highlighted as PAST DUE (optional).
+
+        Returns:
+            True if the draft was created successfully, False otherwise.
+        """
+        try:
+            subject = f"[REVIEW DRAFT] {student_name} - {unit} - {rubric_title}"
+            body_html = self._build_teacher_draft_body(
+                student_email=student_email,
+                student_name=student_name,
+                unit=unit,
+                rubric_title=rubric_title,
+                output=output,
+                submission_date=submission_date,
+                due_date=due_date,
+            )
+
+            msg = EmailMessage()
+            msg['From'] = config.TEACHER_EMAIL
+            msg['To'] = config.TEACHER_EMAIL
+            msg['Subject'] = subject
+            msg.set_content(body_html, subtype='html')
+
+            imap = imaplib.IMAP4_SSL("imap.gmail.com")
+            imap.login(config.TEACHER_EMAIL, config.GMAIL_APP_PASSWORD)
+
+            drafts_mailbox = '"[Gmail]/Drafts"'
+            typ, data = imap.append(
+                drafts_mailbox,
+                "",
+                imaplib.Time2Internaldate(time.time()),
+                msg.as_bytes(),
+            )
+
+            imap.logout()
+
+            if typ != "OK":
+                print(f"IMAP append failed: {typ}, {data}")
+                return False
+
+            print(f"✓ Teacher draft created for {student_name} ({student_email})")
             return True
-            
+
         except Exception as e:
-            print(f"Error creating draft: {e}")
+            print(f"Error creating teacher draft: {e}")
+            import traceback
+            traceback.print_exc()
             return False
-    
+
+    def _build_teacher_draft_body(
+        self,
+        student_email: str,
+        student_name: str,
+        unit: str,
+        rubric_title: str,
+        output: RunOutput,
+        submission_date: Optional[str] = None,
+        due_date: Optional[datetime] = None,
+    ) -> str:
+        """Build the HTML body for the teacher review draft."""
+
+        total_score = sum(r.score for r in output.results if r.score is not None)
+        total_possible = sum(r.max_points for r in output.results if r.max_points is not None)
+        percentage = (total_score / total_possible * 100) if total_possible > 0 else 0
+
+        submission_str = submission_date if submission_date else "Unknown"
+        due_str = due_date.strftime("%B %d, %Y") if due_date else "Unknown"
+
+        html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }}
+        .header {{
+            background-color: #c0392b;
+            color: white;
+            padding: 20px 24px;
+            border-radius: 6px 6px 0 0;
+        }}
+        .header h1 {{
+            margin: 0 0 6px 0;
+            font-size: 20px;
+        }}
+        .header p {{
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }}
+        .student-info {{
+            background-color: #fdf2f2;
+            border-left: 4px solid #c0392b;
+            padding: 14px 16px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }}
+        .student-info p {{
+            margin: 4px 0;
+        }}
+        .score-summary {{
+            background-color: #f5f5f5;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #4A90E2;
+            border-radius: 0 4px 4px 0;
+        }}
+        .criterion {{
+            margin: 16px 0;
+            padding: 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }}
+        .criterion-header {{
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }}
+        .status {{
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }}
+        .status-meets {{
+            background-color: #d4edda;
+            color: #155724;
+        }}
+        .status-partially {{
+            background-color: #fff3cd;
+            color: #856404;
+        }}
+        .status-not-yet {{
+            background-color: #f8d7da;
+            color: #721c24;
+        }}
+        .evidence {{
+            background-color: #f8f9fa;
+            padding: 10px 14px;
+            margin: 10px 0;
+            border-left: 3px solid #6c757d;
+            font-style: italic;
+            font-size: 14px;
+        }}
+        .feedback {{
+            margin: 10px 0;
+        }}
+        .what-to-add {{
+            margin: 10px 0;
+        }}
+        .summary {{
+            margin: 20px 0;
+            padding: 16px;
+            background-color: #e7f3ff;
+            border-radius: 6px;
+        }}
+        .footer {{
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 12px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>[REVIEW DRAFT] Portfolio Evaluation: {rubric_title}</h1>
+        <p>This draft is for your review. The student submission is PAST DUE.</p>
+    </div>
+
+    <div class="student-info">
+        <p><strong>Student:</strong> {student_name} &lt;{student_email}&gt;</p>
+        <p><strong>Unit:</strong> {unit}</p>
+        <p><strong>Submission Date:</strong> {submission_str}</p>
+        <p><strong>Due Date:</strong> {due_str} ⚠️ PAST DUE</p>
+    </div>
+
+    <div class="score-summary">
+        <h2 style="margin: 0 0 8px 0;">Overall Score: {total_score:.1f} / {total_possible:.1f}</h2>
+        <p style="margin: 0;">Percentage: {percentage:.1f}%</p>
+    </div>
+
+    <h2>Detailed Feedback by Criterion</h2>
+"""
+
+        for result in output.results:
+            status_class = {
+                'meets': 'status-meets',
+                'partially_meets': 'status-partially',
+                'not_yet': 'status-not-yet',
+            }.get(result.status.value, '')
+            status_label = result.status.value.replace('_', ' ').title()
+
+            html += f"""
+    <div class="criterion">
+        <div class="criterion-header">
+            {result.criterion_id}
+            <span class="status {status_class}">{status_label}</span>
+        </div>
+"""
+
+            if result.score is not None and result.max_points is not None:
+                html += f"""
+        <p><strong>Score:</strong> {result.score} / {result.max_points}</p>
+"""
+
+            html += f"""
+        <div class="feedback">
+            <strong>Feedback:</strong> {result.feedback}
+        </div>
+"""
+
+            if result.evidence:
+                html += """
+        <div class="evidence">
+            <strong>Evidence from portfolio:</strong>
+"""
+                for ev in result.evidence:
+                    location = ev.ref.location if ev.ref.location else ev.ref.source_name
+                    html += f"""
+            <p>&ldquo;{ev.text}&rdquo;<br>
+            <small>Source: {location}</small></p>
+"""
+                html += """
+        </div>
+"""
+
+            if result.what_to_add:
+                html += """
+        <div class="what-to-add">
+            <strong>To improve:</strong>
+            <ul>
+"""
+                for item in result.what_to_add:
+                    html += f"                <li>{item}</li>\n"
+                html += """            </ul>
+        </div>
+"""
+
+            html += """    </div>
+"""
+
+        html += """
+    <div class="summary">
+        <h2 style="margin-top: 0;">Summary</h2>
+"""
+
+        if output.summary.strengths:
+            html += """
+        <h3>✅ Strengths</h3>
+        <ul>
+"""
+            for strength in output.summary.strengths:
+                html += f"            <li>{strength}</li>\n"
+            html += "        </ul>\n"
+
+        if output.summary.biggest_gaps:
+            html += """
+        <h3>📈 Areas for Growth</h3>
+        <ul>
+"""
+            for gap in output.summary.biggest_gaps:
+                html += f"            <li>{gap}</li>\n"
+            html += "        </ul>\n"
+
+        if output.summary.missing_artifacts:
+            html += """
+        <h3>❗ Missing Elements</h3>
+        <ul>
+"""
+            for missing in output.summary.missing_artifacts:
+                html += f"            <li>{missing}</li>\n"
+            html += "        </ul>\n"
+
+        if output.summary.teacher_comment_draft:
+            html += f"""
+        <div style="margin-top: 16px; padding: 14px; background-color: white; border: 1px solid #ddd; border-radius: 4px;">
+            <strong>Draft Teacher Comment:</strong>
+            <p style="margin: 8px 0 0 0;">{output.summary.teacher_comment_draft}</p>
+        </div>
+"""
+
+        html += """    </div>
+
+    <div class="footer">
+        <p>This evaluation was generated automatically by DPAssist and requires teacher review before sending.</p>
+    </div>
+</body>
+</html>
+"""
+        return html
+
     def _build_email_body(
         self,
         student_name: str,

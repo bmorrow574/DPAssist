@@ -220,20 +220,25 @@ class BackgroundService:
             
             # Send feedback or create draft
             if is_past_due:
-                # Create Gmail draft with scores
-                print(f"  Creating scored draft email...")
-                success = self.gmail.create_feedback_draft(
+                # Create Gmail draft in teacher's inbox with scores
+                print(f"  Creating teacher review draft...")
+                due_date = self.rubric_manager.get_due_date(unit)
+                success = self.gmail.create_teacher_draft(
                     student_email=submission.get('email', ''),
                     student_name=submission.get('student_name', 'Student'),
+                    unit=unit,
                     rubric_title=rubric.title,
-                    output=output
+                    output=output,
+                    submission_date=submission.get('timestamp', ''),
+                    due_date=due_date,
                 )
-                
+
                 if success:
-                    self.sheets_client.update_status(row_number, "Draft created")
+                    self.sheets_client.update_status(row_number, "Teacher draft created")
                     self.sheets_client.update_feedback_sent(row_number, datetime.now().isoformat())
+                    print(f"  ✓ Teacher draft created")
                 else:
-                    print(f"  ! Failed to create draft")
+                    print(f"  ! Failed to create teacher draft")
                     self.sheets_client.update_status(row_number, "Draft failed")
                     return False
             else:
