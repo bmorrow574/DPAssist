@@ -16,7 +16,6 @@ from rubric_manager import RubricManager
 from rubric_parser import RubricParser
 from google_sheets import GoogleSheetsClient
 
-
 def setup_page():
     """Configure Streamlit page"""
     st.set_page_config(
@@ -26,7 +25,6 @@ def setup_page():
     )
     
     st.title("📝 Portfolio Reviewer - Teacher Dashboard")
-
 
 def check_configuration():
     """Check if system is properly configured"""
@@ -38,7 +36,6 @@ def check_configuration():
             st.write(f"- {error}")
         st.info("Please create a .env file with your credentials. See .env.example for reference.")
         st.stop()
-
 
 def render_rubric_management(rubric_manager: RubricManager, rubric_parser: RubricParser):
     """Render rubric upload and management section"""
@@ -59,7 +56,7 @@ def render_rubric_management(rubric_manager: RubricManager, rubric_parser: Rubri
                 status = "⏰ Active" if not unit['is_past_due'] else "✅ Past Due"
                 col2.write(f"**Status:** {status}")
                 
-                if col3.button("Delete", key=f"delete_{unit['unit_name']}"):
+                if col3.button("Delete", key=f"delete_{unit['unit_name']}" ):
                     rubric_manager.delete_rubric(unit['unit_name'])
                     st.success(f"Deleted rubric for {unit['unit_name']}")
                     st.rerun()
@@ -87,7 +84,7 @@ def render_rubric_management(rubric_manager: RubricManager, rubric_parser: Rubri
         with col2:
             due_date = st.date_input(
                 "Due Date",
-                min_value=date.today()
+                min_value=date(2020, 1, 1)
             )
         
         if st.button("Parse and Add Rubric"):
@@ -124,7 +121,6 @@ def render_rubric_management(rubric_manager: RubricManager, rubric_parser: Rubri
                         st.rerun()
                     else:
                         st.error("Failed to parse rubric. Please check the PDF format.")
-
 
 def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager: RubricManager):
     """Render submissions monitoring section"""
@@ -186,7 +182,6 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
     
     except Exception as e:
         st.error(f"Error loading submissions: {e}")
-
 
 def render_system_status():
     """Render system status section"""
