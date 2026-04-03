@@ -64,6 +64,12 @@ class PortfolioEvaluator:
         Returns:
             Dict with 'results' and 'summary'
         """
+        # Print all criterion IDs so mismatches are easy to diagnose
+        all_criteria = rubric.all_criteria()
+        print(f"  Rubric '{rubric.title}' has {len(all_criteria)} criteria:")
+        for c in all_criteria:
+            print(f"    - {c.id!r}  (title: {c.title!r})")
+
         # Build artifact set from scraped content
         artifact_set = self._build_artifact_set(portfolio_content)
         
@@ -155,7 +161,15 @@ YOU MUST ASSIGN SCORES based on rubric criteria and levels.
             scoring_instruction = """
 DO NOT ASSIGN SCORES. Provide feedback only.
 """
-        
+
+        # Build the explicit criterion ID list and an example JSON entry
+        all_criteria = rubric.all_criteria()
+        criterion_id_lines = "\n".join(
+            f'  - "{c.id}"  →  {c.title}' for c in all_criteria
+        )
+        # Build a small example using the first real criterion ID (or a placeholder)
+        example_id = all_criteria[0].id if all_criteria else "criterion_id_here"
+
         prompt = f"""You are an objective portfolio evaluator. Your role is to assess student work against specific rubric criteria with absolute precision and evidence-based reasoning.
 
 CORE RULES (STRICT - NO EXCEPTIONS):
@@ -199,15 +213,19 @@ CORE RULES (STRICT - NO EXCEPTIONS):
 RUBRIC BEING EVALUATED:
 {rubric.title}
 
-CRITERIA:
+CRITERION IDs — YOU MUST USE EXACTLY THESE (no substitutes, no abbreviations, no variations):
+{criterion_id_lines}
+
+CRITERIA DETAILS:
 {self._format_rubric_for_prompt(rubric)}
 
 OUTPUT FORMAT:
-Return JSON with this exact structure:
+Return JSON with this exact structure.  The "criterion_id" values in your response MUST
+match the IDs listed above character-for-character:
 {{
   "results": [
     {{
-      "criterion_id": "...",
+      "criterion_id": "{example_id}",
       "status": "meets|partially_meets|not_yet",
       "score": null or number,
       "max_points": null or number,
@@ -231,6 +249,7 @@ Return JSON with this exact structure:
 }}
 
 CRITICAL: Your response must be valid JSON only. No markdown, no preamble, no explanation.
+CRITICAL: Use ONLY the criterion IDs listed in the "CRITERION IDs" section above.
 """
         return prompt
     
@@ -242,7 +261,7 @@ CRITICAL: Your response must be valid JSON only. No markdown, no preamble, no ex
             output.append(f"\n{category.name}:")
             
             for criterion in category.criteria:
-                output.append(f"\n  • {criterion.id}")
+                output.append(f"\n  CRITERION ID (use exactly): \"{criterion.id}\"")
                 output.append(f"    Title: {criterion.title}")
                 output.append(f"    Descriptor: {criterion.descriptor}")
                 output.append(f"    Max Points: {criterion.max_points}")
@@ -294,9 +313,26 @@ CRITICAL: Your response must be valid JSON only. No markdown, no preamble, no ex
             # Parse JSON
             data = json.loads(cleaned)
             
+            # Build a set of valid criterion IDs from the rubric so we can
+            # reject any IDs that Gemini invented on its own.
+            valid_ids = {c.id for c in rubric.all_criteria()}
+
             # Convert to proper schema objects
             results = []
             for result_data in data.get('results', []):
+                returned_id = result_data.get('criterion_id', '')
+
+                # Discard results whose criterion_id is not in the rubric.
+                # This prevents downstream "unknown criteria" validation errors
+                # when Gemini invents IDs like 'overview' instead of
+                # '1_project_overview'.
+                if returned_id not in valid_ids:
+                    print(
+                        f"  Warning: Gemini returned unknown criterion_id "
+                        f"'{returned_id}' - discarding (not in rubric)"
+                    )
+                    continue
+
                 evidence_quotes = []
                 
                 for ev in result_data.get('evidence', []):
@@ -311,7 +347,7 @@ CRITICAL: Your response must be valid JSON only. No markdown, no preamble, no ex
                     evidence_quotes.append(quote)
                 
                 result = CriterionResult(
-                    criterion_id=result_data['criterion_id'],
+                    criterion_id=returned_id,
                     status=CriterionStatus(result_data['status']),
                     score=result_data.get('score'),
                     max_points=result_data.get('max_points'),
