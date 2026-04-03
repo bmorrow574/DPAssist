@@ -188,8 +188,8 @@ class GoogleSheetsClient:
             import google.generativeai as genai
             genai.configure(api_key=config.GEMINI_API_KEY)
 
-            model = genai.GenerativeModel("gemini-1.5-pro")
-
+            model = genai.GenerativeModel("gemini-2.0-flash-exp")
+            
             prompt = (
                 "You are mapping Google Form column headers to standardized field names.\n\n"
                 "Given these column headers from a student portfolio submission Google Sheet:\n"
