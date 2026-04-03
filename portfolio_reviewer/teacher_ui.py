@@ -156,12 +156,15 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
         for record in submissions[-20:]:  # Last 20
             parsed = GoogleSheetsClient.parse_submission(record) or {}
 
-            # Fallback email lookup: search raw record keys for "email address"
+            # Fallback email lookup: scan raw record values for something that
+            # looks like a real email address — works regardless of header name.
+            import re as _re
+            _email_re = _re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
             email = parsed.get('email')
-            if not email:
-                for key in record:
-                    if 'email address' in key.lower():
-                        email = record[key]
+            if not email or not _email_re.match(str(email)):
+                for value in record.values():
+                    if isinstance(value, str) and _email_re.match(value):
+                        email = value
                         break
 
             # Get rubric info
