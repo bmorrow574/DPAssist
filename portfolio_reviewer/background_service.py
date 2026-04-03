@@ -19,6 +19,7 @@ from google_sheets import GoogleSheetsClient
 from scraper import PortfolioScraper
 from evaluator import PortfolioEvaluator
 from gmail_drafts import GmailDraftCreator
+from email_service import EmailService
 from rubric_manager import RubricManager
 from orchestrator.pipeline import build_and_validate_run
 from schemas.run import RunMode
@@ -66,6 +67,7 @@ class BackgroundService:
         self.scraper = PortfolioScraper()
         self.evaluator = PortfolioEvaluator()
         self.gmail = GmailDraftCreator()
+        self.email_service = EmailService()
         self.rubric_manager = RubricManager()
         self.state = ProcessingState(config.STATE_FILE)
         
@@ -235,9 +237,30 @@ class BackgroundService:
                     self.sheets_client.update_status(row_number, "Draft failed")
                     return False
             else:
-                # Send feedback without scores (TODO: implement email sending)
-                print(f"  Would send feedback (no scores) - not yet implemented")
-                self.sheets_client.update_status(row_number, "Feedback pending")
+                # Send feedback email without scores (before deadline)
+                student_email = submission.get('email', '')
+                student_name = submission.get('student_name', 'Student')
+                due_date = self.rubric_manager.get_due_date(unit)
+                portfolio_url = submission.get('portfolio_url', '')
+
+                print(f"  Sending feedback email to {student_email}...")
+                success = self.email_service.send_feedback_email(
+                    student_email=student_email,
+                    student_name=student_name,
+                    rubric_title=rubric.title,
+                    output=output,
+                    due_date=due_date,
+                    portfolio_url=portfolio_url,
+                )
+
+                if success:
+                    self.sheets_client.update_status(row_number, "Feedback sent")
+                    self.sheets_client.update_feedback_sent(row_number, datetime.now().isoformat())
+                    print(f"  ✓ Feedback email sent to {student_email}")
+                else:
+                    print(f"  ! Failed to send feedback email")
+                    self.sheets_client.update_status(row_number, "Email failed")
+                    return False
             
             # Update last processed timestamp
             self.sheets_client.update_last_processed(row_number, datetime.now().isoformat())
