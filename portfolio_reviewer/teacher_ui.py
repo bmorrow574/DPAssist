@@ -156,12 +156,20 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
         for record in submissions[-20:]:  # Last 20
             parsed = GoogleSheetsClient.parse_submission(record) or {}
 
-            # Fallback email lookup: search raw record keys for "email address"
+            # Fallback email lookup: search raw record keys for "email address" or exact "email",
+            # then fall back to any value containing "@" (actual email address)
             email = parsed.get('email')
-            if not email:
-                for key in record:
-                    if 'email address' in key.lower():
-                        email = record[key]
+            if not email or '@' not in str(email):
+                for key, value in record.items():
+                    key_lower = key.lower().strip()
+                    value_str = str(value).strip() if value else ''
+                    if ('email address' in key_lower or key_lower == 'email') and value_str and '@' in value_str:
+                        email = value
+                        break
+            if not email or '@' not in str(email):
+                for value in record.values():
+                    if value and '@' in str(value):
+                        email = value
                         break
 
             # Get rubric info
