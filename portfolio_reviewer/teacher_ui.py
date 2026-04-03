@@ -172,6 +172,10 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
                         email = value
                         break
 
+            # Discard any value that still doesn't look like an email address
+            if email and '@' not in str(email):
+                email = None
+
             # Get rubric info
             unit = parsed.get('unit', 'Unknown')
             due_date = rubric_manager.get_due_date(unit)
