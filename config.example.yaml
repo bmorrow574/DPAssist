@@ -14,7 +14,8 @@ google_sheets:
   
   # How often to check for new submissions (in seconds)
   # Default: 300 (5 minutes)
-  check_interval: 300
+  check_interval: 60
+  
 
 # =============================================================================
 # DEADLINE SETTINGS
