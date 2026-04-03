@@ -23,7 +23,6 @@ from schemas.output import (
 from schemas.artifact import Artifact, ArtifactSet, ArtifactType
 import json
 import time
-import random
 
 
 # Configure Gemini
@@ -74,41 +73,33 @@ class PortfolioEvaluator:
         # Build user prompt with portfolio content
         user_prompt = self._build_user_prompt(artifact_set, rubric)
         
-        # Call Gemini API with timeout and retry logic
+        # Call Gemini API with retry logic
         max_retries = 3
-        last_error = None
-
         for attempt in range(max_retries):
             try:
-                response = self.model.generate_content(
-                    [system_prompt, user_prompt],
-                    request_options={"timeout": 600},
-                )
-
+                response = self.model.generate_content([
+                    system_prompt,
+                    user_prompt
+                ])
+                
                 # Parse response
                 evaluation = self._parse_evaluation(response.text, rubric, artifact_set)
-
                 return evaluation
-
+                
             except Exception as e:
-                last_error = e
-                error_str = str(e)
-                # Retry on transient server errors
-                retryable = any(code in error_str for code in ["429", "503", "504"])
-                if retryable and attempt < max_retries - 1:
-                    wait_time = (2 ** attempt) * 10  # 10s, 20s
-                    print(
-                        f"Transient API error (attempt {attempt + 1}/{max_retries}),"
-                        f" retrying in {wait_time}s: {e}"
-                    )
+                error_msg = str(e)
+                print(f"Error calling Gemini API (attempt {attempt + 1}/{max_retries}): {e}")
+                
+                # Retry on timeout, 504, or quota errors
+                if attempt < max_retries - 1 and any(x in error_msg for x in ['504', 'timeout', 'deadline', 'quota']):
+                    wait_time = 30 * (2 ** attempt)  # 30s, 60s, 120s
+                    print(f"  Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
-                # Non-retryable or final attempt — fall through
-                break
-
-        print(f"Error calling Gemini API: {last_error}")
-        return self._build_error_evaluation(rubric)
-    
+                
+                # Give up and return error evaluation
+                return self._build_error_evaluation(rubric)
+        
     def _build_artifact_set(self, portfolio_content: Dict) -> ArtifactSet:
         """Convert scraped content to ArtifactSet"""
         artifacts = []
@@ -326,24 +317,6 @@ CRITICAL: Your response must be valid JSON only. No markdown, no preamble, no ex
                 )
                 results.append(result)
             
-            # Supplement any criteria the AI omitted so validation always passes
-            actual_ids = {r.criterion_id for r in results}
-            for criterion in rubric.all_criteria():
-                if criterion.id not in actual_ids:
-                    results.append(
-                        CriterionResult(
-                            criterion_id=criterion.id,
-                            status=CriterionStatus.NOT_YET,
-                            confidence=ConfidenceLevel.LOW,
-                            evidence=[],
-                            feedback=(
-                                f"Criterion '{criterion.id}' was not evaluated by AI "
-                                f"(partial response). Please review manually."
-                            ),
-                            what_to_add=["Manual review required"],
-                        )
-                    )
-
             summary_data = data.get('summary', {})
             summary = RunSummary(
                 strengths=summary_data.get('strengths', []),
@@ -351,20 +324,7 @@ CRITICAL: Your response must be valid JSON only. No markdown, no preamble, no ex
                 missing_artifacts=summary_data.get('missing_artifacts', []),
                 teacher_comment_draft=summary_data.get('teacher_comment_draft', '')
             )
-
-            # Ensure all rubric criteria are present in results
-            result_ids = {r.criterion_id for r in results}
-            for criterion in rubric.all_criteria():
-                if criterion.id not in result_ids:
-                    results.append(CriterionResult(
-                        criterion_id=criterion.id,
-                        status=CriterionStatus.NOT_YET,
-                        confidence=ConfidenceLevel.LOW,
-                        evidence=[],
-                        feedback="Error: Criterion not evaluated by AI. Please review manually.",
-                        what_to_add=["Manual review required"]
-                    ))
-
+            
             return {
                 'results': results,
                 'summary': summary
