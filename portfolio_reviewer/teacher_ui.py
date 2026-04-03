@@ -19,12 +19,12 @@ from google_sheets import GoogleSheetsClient
 def setup_page():
     """Configure Streamlit page"""
     st.set_page_config(
-        page_title="Portfolio Reviewer - Teacher Dashboard",
+        page_title="DPAssist - Teacher Dashboard",
         page_icon="📝",
         layout="wide"
     )
     
-    st.title("📝 Portfolio Reviewer - Teacher Dashboard")
+    st.title("📝 DPAssist - Teacher Dashboard")
 
 def check_configuration():
     """Check if system is properly configured"""
@@ -239,7 +239,7 @@ def main():
         )
         
         st.divider()
-        st.caption("Portfolio Reviewer v1.0")
+        st.caption("DPAssist v1.0")
         st.caption("Automated portfolio evaluation system")
     
     # Render selected page
