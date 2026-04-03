@@ -74,17 +74,15 @@ class PortfolioEvaluator:
         # Build user prompt with portfolio content
         user_prompt = self._build_user_prompt(artifact_set, rubric)
         
-        # Call Gemini API with retry logic
+        # Call Gemini API with timeout and retry logic
         max_retries = 3
-        base_delay = 5
-        # Error substrings that indicate a transient failure worth retrying
-        _retryable = ("504", "503", "429", "timeout", "timed out", "rate limit", "retry")
+        last_error = None
 
         for attempt in range(max_retries):
             try:
                 response = self.model.generate_content(
                     [system_prompt, user_prompt],
-                    request_options={"timeout": 600}
+                    request_options={"timeout": 600},
                 )
 
                 # Parse response
@@ -93,20 +91,22 @@ class PortfolioEvaluator:
                 return evaluation
 
             except Exception as e:
-                err_str = str(e).lower()
-                is_retryable = any(tag in err_str for tag in _retryable)
-                print(f"Error calling Gemini API: {e}")
-                if is_retryable and attempt < max_retries - 1:
-                    # Exponential backoff: base_delay * 2^attempt + random jitter
-                    delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
-                    print(f"  Retrying in {delay:.1f}s (attempt {attempt + 1}/{max_retries})...")
-                    time.sleep(delay)
-                elif not is_retryable:
-                    print(f"  Non-retryable error, skipping retries.")
-                    break
-                else:
-                    print(f"  All {max_retries} attempts failed.")
+                last_error = e
+                error_str = str(e)
+                # Retry on transient server errors
+                retryable = any(code in error_str for code in ["429", "503", "504"])
+                if retryable and attempt < max_retries - 1:
+                    wait_time = (2 ** attempt) * 10  # 10s, 20s
+                    print(
+                        f"Transient API error (attempt {attempt + 1}/{max_retries}),"
+                        f" retrying in {wait_time}s: {e}"
+                    )
+                    time.sleep(wait_time)
+                    continue
+                # Non-retryable or final attempt — fall through
+                break
 
+        print(f"Error calling Gemini API: {last_error}")
         return self._build_error_evaluation(rubric)
     
     def _build_artifact_set(self, portfolio_content: Dict) -> ArtifactSet:
@@ -326,6 +326,24 @@ CRITICAL: Your response must be valid JSON only. No markdown, no preamble, no ex
                 )
                 results.append(result)
             
+            # Supplement any criteria the AI omitted so validation always passes
+            actual_ids = {r.criterion_id for r in results}
+            for criterion in rubric.all_criteria():
+                if criterion.id not in actual_ids:
+                    results.append(
+                        CriterionResult(
+                            criterion_id=criterion.id,
+                            status=CriterionStatus.NOT_YET,
+                            confidence=ConfidenceLevel.LOW,
+                            evidence=[],
+                            feedback=(
+                                f"Criterion '{criterion.id}' was not evaluated by AI "
+                                f"(partial response). Please review manually."
+                            ),
+                            what_to_add=["Manual review required"],
+                        )
+                    )
+
             summary_data = data.get('summary', {})
             summary = RunSummary(
                 strengths=summary_data.get('strengths', []),

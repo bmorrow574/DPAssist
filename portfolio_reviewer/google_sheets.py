@@ -218,7 +218,10 @@ class GoogleSheetsClient:
                 '{"Header text here": "field_name", "Another header": "other"}'
             )
 
-            response = model.generate_content(prompt, request_options={"timeout": 60})
+            response = model.generate_content(
+                prompt,
+                request_options={"timeout": 600},
+            )
             response_text = response.text.strip()
 
             # Strip markdown code fences if present
