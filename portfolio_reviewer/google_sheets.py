@@ -275,6 +275,12 @@ class GoogleSheetsClient:
         elif last_name:
             parsed['student_name'] = last_name
 
+        # Pick the best email candidate: only use a value that contains "@"
+        if email_candidates:
+            preferred = next((v for v in email_candidates if str(v).strip() and '@' in str(v)), None)
+            if preferred is not None:
+                parsed['email'] = preferred
+
         if not parsed.get('portfolio_url'):
             return None
 
@@ -296,8 +302,14 @@ class GoogleSheetsClient:
         mapping = GoogleSheetsClient.get_header_mapping(headers)
 
         if mapping is None:
-            # AI unavailable — use keyword fallback
-            return GoogleSheetsClient._parse_submission_fallback(record)
+            # AI unavailable — use keyword fallback, then apply @ validation
+            parsed = GoogleSheetsClient._parse_submission_fallback(record)
+            if parsed is not None and (not parsed.get('email') or '@' not in str(parsed.get('email', ''))):
+                for value in record.values():
+                    if value and str(value).strip() and '@' in str(value):
+                        parsed['email'] = value
+                        break
+            return parsed
 
         # Apply the AI-generated mapping
         parsed: Dict[str, str] = {}
