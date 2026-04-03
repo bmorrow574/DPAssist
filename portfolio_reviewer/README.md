@@ -1,4 +1,4 @@
-# Portfolio Reviewer
+# DPAssist
 
 Automated portfolio evaluation system using Google Gemini AI with strict grading rules.
 

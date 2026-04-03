@@ -1,7 +1,7 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 echo "============================================"
-echo "Portfolio Reviewer - Starting Launcher"
+echo "DPAssist - Starting Launcher"
 echo "============================================"
 echo ""
 

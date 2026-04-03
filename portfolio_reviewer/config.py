@@ -1,5 +1,5 @@
 """
-Configuration management for Portfolio Reviewer
+Configuration management for DPAssist
 Loads settings from Streamlit secrets (when running on Streamlit Cloud)
 or falls back to environment variables / .env file (when running locally).
 """
