@@ -160,6 +160,15 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
         for record in submissions[-20:]:  # Last 20
             parsed = GoogleSheetsClient.parse_submission(record) or {}
 
+            # Extract email: prefer parsed result, then search raw record headers
+            email = parsed.get('email', '')
+            if not email:
+                for key, value in record.items():
+                    key_lower = key.lower()
+                    if ('email address' in key_lower or key_lower == 'email') and value and str(value).strip():
+                        email = value
+                        break
+
             # Fallback email lookup: scan raw record values for something that
             # looks like a real email address — works regardless of header name.
             email = parsed.get('email')
@@ -180,11 +189,13 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
 
             display_data.append({
                 'Student': parsed.get('student_name', 'Unknown'),
+                'Email': email,
                 'Email': email or 'Unknown',
                 'Unit': unit,
                 'Status': record.get('Status', 'Pending'),
                 'Due': due_date.strftime('%Y-%m-%d') if due_date else 'Not set',
                 'Past Due': '✅' if is_past_due else '⏰',
+                'Submitted': parsed.get('timestamp', record.get('Timestamp', 'Unknown'))
                 'Submitted': parsed.get('timestamp', 'Unknown')
             })
         
