@@ -147,7 +147,11 @@ class GoogleSheetsClient:
                 # Match "What is your email address?" but NOT
                 # "When is a good time to meet..." or other questions
                 parsed['email'] = record[key]
-            elif ('copy' in key_lower and 'paste' in key_lower) or ('publish' in key_lower and 'portf' in key_lower):
+            elif (
+                ('copy' in key_lower and 'paste' in key_lower)
+                or ('publish' in key_lower and 'portf' in key_lower)
+                or ('portf' in key_lower and ('url' in key_lower or 'link' in key_lower))
+            ):
                 parsed['portfolio_url'] = record[key]
             elif 'select' in key_lower and 'unit' in key_lower:
                 parsed['unit'] = record[key]
