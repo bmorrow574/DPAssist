@@ -23,6 +23,7 @@ from schemas.output import (
 from schemas.artifact import Artifact, ArtifactSet, ArtifactType
 import json
 import time
+import random
 
 
 # Configure Gemini
@@ -350,7 +351,20 @@ CRITICAL: Your response must be valid JSON only. No markdown, no preamble, no ex
                 missing_artifacts=summary_data.get('missing_artifacts', []),
                 teacher_comment_draft=summary_data.get('teacher_comment_draft', '')
             )
-            
+
+            # Ensure all rubric criteria are present in results
+            result_ids = {r.criterion_id for r in results}
+            for criterion in rubric.all_criteria():
+                if criterion.id not in result_ids:
+                    results.append(CriterionResult(
+                        criterion_id=criterion.id,
+                        status=CriterionStatus.NOT_YET,
+                        confidence=ConfidenceLevel.LOW,
+                        evidence=[],
+                        feedback="Error: Criterion not evaluated by AI. Please review manually.",
+                        what_to_add=["Manual review required"]
+                    ))
+
             return {
                 'results': results,
                 'summary': summary

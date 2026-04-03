@@ -188,7 +188,18 @@ class GoogleSheetsClient:
             import google.generativeai as genai
             genai.configure(api_key=config.GEMINI_API_KEY)
 
-            model = genai.GenerativeModel("gemini-2.5-pro")
+            preferred_models = ["gemini-2.5-pro", "gemini-pro-latest", "gemini-1.5-pro"]
+            model = None
+            for model_name in preferred_models:
+                try:
+                    model = genai.GenerativeModel(model_name)
+                    break
+                except Exception as e:
+                    print(f"AI header mapping: model {model_name} not available: {e}")
+                    continue
+
+            if model is None:
+                return None
 
             prompt = (
                 "You are mapping Google Form column headers to standardized field names.\n\n"
