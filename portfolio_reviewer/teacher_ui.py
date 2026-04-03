@@ -154,22 +154,30 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
         # Parse and display submissions
         display_data = []
         for record in submissions[-20:]:  # Last 20
-            parsed = GoogleSheetsClient.parse_submission(record)
-            if parsed:
-                # Get rubric info
-                unit = parsed.get('unit', 'Unknown')
-                due_date = rubric_manager.get_due_date(unit)
-                is_past_due = rubric_manager.is_past_due(unit)
-                
-                display_data.append({
-                    'Student': parsed.get('student_name', 'Unknown'),
-                    'Email': parsed.get('email', 'Unknown'),
-                    'Unit': unit,
-                    'Status': record.get('Status', 'Pending'),
-                    'Due': due_date.strftime('%Y-%m-%d') if due_date else 'Not set',
-                    'Past Due': '✅' if is_past_due else '⏰',
-                    'Submitted': parsed.get('timestamp', 'Unknown')
-                })
+            parsed = GoogleSheetsClient.parse_submission(record) or {}
+
+            # Fallback email lookup: search raw record keys for "email address"
+            email = parsed.get('email')
+            if not email:
+                for key in record:
+                    if 'email address' in key.lower():
+                        email = record[key]
+                        break
+
+            # Get rubric info
+            unit = parsed.get('unit', 'Unknown')
+            due_date = rubric_manager.get_due_date(unit)
+            is_past_due = rubric_manager.is_past_due(unit)
+
+            display_data.append({
+                'Student': parsed.get('student_name', 'Unknown'),
+                'Email': email or 'Unknown',
+                'Unit': unit,
+                'Status': record.get('Status', 'Pending'),
+                'Due': due_date.strftime('%Y-%m-%d') if due_date else 'Not set',
+                'Past Due': '✅' if is_past_due else '⏰',
+                'Submitted': parsed.get('timestamp', 'Unknown')
+            })
         
         if display_data:
             st.dataframe(
