@@ -85,7 +85,7 @@ class RubricParser:
         
         # Try multiple section patterns
         # Pattern 1: "1. Title – XX points"
-        section_pattern1 = r'(\d+)\.\s+([^–\n]+)\s*[–-]\s*(\d+)\s+points?'
+        section_pattern1 = r'(?:(\d+)\.\s+)?([^–\n]+)\s*[–-]\s*(\d+)\s+points?'
         sections = list(re.finditer(section_pattern1, text, re.IGNORECASE))
         
         # Pattern 2: "Title (XX points)" or "Title - XX points"
@@ -121,7 +121,7 @@ class RubricParser:
                 })()]
         
         for i, match in enumerate(sections):
-            section_num = match.group(1)
+            section_num = match.group(1) or str(i + 1)
             section_title = match.group(2).strip()
             section_points = int(match.group(3))
             

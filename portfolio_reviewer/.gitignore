@@ -6,6 +6,7 @@ service-account-credentials.json
 credentials.json
 token.json
 *.json
+config.yaml
 
 # Python
 __pycache__/
