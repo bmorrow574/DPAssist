@@ -52,6 +52,10 @@ class Config:
     # Background Service
     CHECK_INTERVAL_SECONDS = int(_get_secret('CHECK_INTERVAL_SECONDS', '60'))
 
+    # Rubric storage: "local" (default, uses portfolio_reviewer/rubrics/ folder)
+    # or "sheets" (stores rubrics in a Google Sheet tab — required for cloud deployment)
+    RUBRIC_STORAGE = _get_secret('RUBRIC_STORAGE', 'local')
+
     # Paths
     BASE_DIR = Path(__file__).parent  # portfolio_reviewer folder
     RUBRICS_DIR = BASE_DIR / 'rubrics'

@@ -1,0 +1,21 @@
+services:
+  - type: worker
+    name: dpassist-background
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python portfolio_reviewer/background_service.py
+    envVars:
+      - key: GOOGLE_CREDENTIALS_JSON
+        sync: false          # set manually in the Render dashboard
+      - key: GOOGLE_SHEET_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: TEACHER_EMAIL
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: RUBRIC_STORAGE
+        value: sheets        # use Google Sheets rubric storage on cloud
+      - key: CHECK_INTERVAL_SECONDS
+        value: "60"

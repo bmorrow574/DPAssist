@@ -23,7 +23,7 @@ class EmailService:
     """Send feedback emails to students via Gmail SMTP."""
 
     SMTP_HOST = "smtp.gmail.com"
-    SMTP_PORT = 587
+    SMTP_PORT = 465
 
     def send_feedback_email(
         self,
@@ -64,10 +64,7 @@ class EmailService:
             msg["Subject"] = subject
             msg.set_content(body_html, subtype="html")
 
-            with smtplib.SMTP(self.SMTP_HOST, self.SMTP_PORT) as smtp:
-                smtp.ehlo()
-                smtp.starttls()
-                smtp.ehlo()
+            with smtplib.SMTP_SSL(self.SMTP_HOST, self.SMTP_PORT) as smtp:
                 smtp.login(config.TEACHER_EMAIL, config.GMAIL_APP_PASSWORD)
                 smtp.send_message(msg)
 

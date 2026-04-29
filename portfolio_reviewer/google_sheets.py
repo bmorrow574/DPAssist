@@ -361,3 +361,89 @@ class GoogleSheetsClient:
             return None
 
         return parsed
+
+    # ------------------------------------------------------------------
+    # Rubric storage (cloud-compatible — stored in a dedicated sheet tab)
+    # ------------------------------------------------------------------
+
+    RUBRIC_SHEET_NAME = "DPAssist_Rubrics"
+
+    def _get_or_create_rubrics_sheet(self):
+        """Return the rubrics worksheet, creating it with headers if needed."""
+        spreadsheet = self.client.open_by_key(config.GOOGLE_SHEET_ID)
+        try:
+            return spreadsheet.worksheet(self.RUBRIC_SHEET_NAME)
+        except Exception:
+            ws = spreadsheet.add_worksheet(title=self.RUBRIC_SHEET_NAME, rows=200, cols=6)
+            ws.append_row(['unit_name', 'title', 'due_date', 'rubric_json', 'created'])
+            return ws
+
+    def get_all_rubrics_from_sheet(self) -> list:
+        """Return all rubric records from the rubrics sheet."""
+        ws = self._get_or_create_rubrics_sheet()
+        records = ws.get_all_records()
+        result = []
+        for r in records:
+            try:
+                r['rubric_data'] = json.loads(r.get('rubric_json', '{}'))
+                result.append(r)
+            except Exception:
+                pass
+        return result
+
+    def save_rubric_to_sheet(
+        self,
+        unit_name: str,
+        title: str,
+        due_date: str,
+        rubric_version,           # RubricVersion — avoid circular import with string hint
+    ):
+        """Insert or update a rubric row in the rubrics sheet."""
+        from datetime import datetime as _dt
+        rubric_json = json.dumps(self._rubric_version_to_dict(rubric_version))
+        ws = self._get_or_create_rubrics_sheet()
+        records = ws.get_all_records()
+
+        for i, row in enumerate(records, start=2):  # row 1 is the header
+            if row.get('unit_name') == unit_name:
+                ws.update(f'A{i}:E{i}',
+                          [[unit_name, title, due_date, rubric_json, _dt.now().isoformat()]])
+                return
+
+        ws.append_row([unit_name, title, due_date, rubric_json, _dt.now().isoformat()])
+
+    def delete_rubric_from_sheet(self, unit_name: str):
+        """Remove a rubric row from the rubrics sheet."""
+        ws = self._get_or_create_rubrics_sheet()
+        records = ws.get_all_records()
+        for i, row in enumerate(records, start=2):
+            if row.get('unit_name') == unit_name:
+                ws.delete_rows(i)
+                return
+
+    @staticmethod
+    def _rubric_version_to_dict(rubric_version) -> dict:
+        """Serialize a RubricVersion to a plain dict for JSON storage."""
+        categories = []
+        for cat in rubric_version.categories:
+            criteria = []
+            for crit in cat.criteria:
+                levels = [
+                    {'label': lvl.label, 'descriptor': lvl.descriptor, 'points': lvl.points}
+                    for lvl in crit.levels
+                ]
+                criteria.append({
+                    'id': crit.id,
+                    'category': crit.category,
+                    'title': crit.title,
+                    'descriptor': crit.descriptor,
+                    'max_points': crit.max_points,
+                    'levels': levels,
+                })
+            categories.append({'name': cat.name, 'criteria': criteria})
+        return {
+            'rubric_id': rubric_version.rubric_id,
+            'version': rubric_version.version,
+            'title': rubric_version.title,
+            'categories': categories,
+        }
