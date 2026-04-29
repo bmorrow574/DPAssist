@@ -237,14 +237,17 @@ def main():
     
     # Initialize managers
     config.setup_directories()
-    rubric_manager = RubricManager()
     rubric_parser = RubricParser()
-    
+
     try:
         sheets_client = GoogleSheetsClient()
     except Exception as e:
         st.error(f"Failed to connect to Google Sheets: {e}")
         st.stop()
+
+    # Pass the sheets_client so that cloud mode (RUBRIC_STORAGE=sheets) reuses
+    # the existing connection instead of opening a second one.
+    rubric_manager = RubricManager(sheets_client=sheets_client if config.RUBRIC_STORAGE == 'sheets' else None)
     
     # Sidebar navigation
     with st.sidebar:
