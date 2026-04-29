@@ -61,4 +61,4 @@ rubrics/
 *.pdf
 
 # Processing state
-processing_state.json
+processing_state.json.claude/
