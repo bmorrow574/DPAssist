@@ -87,6 +87,10 @@ class PortfolioEvaluator:
                     system_prompt,
                     user_prompt
                 ])
+
+                print("\n===== RAW GEMINI RESPONSE =====")
+                print(response.text)
+                print("===== END RESPONSE =====\n")
                 
                 # Parse response
                 evaluation = self._parse_evaluation(response.text, rubric, artifact_set)

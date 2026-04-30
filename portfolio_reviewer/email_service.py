@@ -64,7 +64,11 @@ class EmailService:
             msg["Subject"] = subject
             msg.set_content(body_html, subtype="html")
 
-            with smtplib.SMTP_SSL(self.SMTP_HOST, self.SMTP_PORT) as smtp:
+            with smtplib.SMTP_SSL(
+                self.SMTP_HOST,
+                self.SMTP_PORT,
+                local_hostname="localhost"
+            ) as smtp:
                 smtp.login(config.TEACHER_EMAIL, config.GMAIL_APP_PASSWORD)
                 smtp.send_message(msg)
 
