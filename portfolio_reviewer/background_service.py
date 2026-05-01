@@ -114,30 +114,61 @@ class BackgroundService:
             for idx, record in enumerate(submissions, start=2):  # Row 2 is first data row
                 # Parse submission
                 parsed = GoogleSheetsClient.parse_submission(record)
-                
+
                 if not parsed:
                     continue
-                
-                # Create unique key for this submission
-                submission_key = f"{parsed.get('email', 'unknown')}_{parsed.get('unit', 'unknown')}_{parsed.get('timestamp', '')}"
-                
-                # Skip if already processed
-                if self.state.is_processed(submission_key):
-                    continue
-                
-                new_count += 1
-                print(f"\nProcessing new submission from {parsed.get('student_name', 'Unknown')}")
-                print(f"  Unit: {parsed.get('unit', 'Unknown')}")
-                print(f"  URL: {parsed.get('portfolio_url', 'Unknown')}")
-                
-                # Process this submission
-                success = self._process_submission(parsed, idx)
-                
-                if success:
-                    self.state.mark_processed(submission_key)
-                    print(f"  ✓ Successfully processed")
-                else:
-                    print(f"  ✗ Processing failed")
+
+                # portfolio_entries is a list of {url, unit} dicts.
+                # Older parse results may not have it — build a fallback.
+                entries = parsed.get('portfolio_entries') or [
+                    {'url': parsed.get('portfolio_url', ''), 'unit': parsed.get('unit', '')}
+                ]
+
+                email = parsed.get('email', 'unknown')
+                timestamp = parsed.get('timestamp', '')
+                student_name = parsed.get('student_name', 'Unknown')
+                class_section = parsed.get('class_section', '')
+
+                any_new = False
+                all_success = True
+
+                for entry in entries:
+                    url = entry.get('url', '')
+                    unit = entry.get('unit', '')
+
+                    if not url:
+                        continue
+
+                    # Unique key per student + unit + timestamp
+                    submission_key = f"{email}_{unit}_{timestamp}"
+
+                    if self.state.is_processed(submission_key):
+                        continue
+
+                    any_new = True
+                    new_count += 1
+                    print(f"\nProcessing new submission from {student_name}")
+                    print(f"  Unit: {unit}")
+                    print(f"  URL: {url}")
+                    if class_section:
+                        print(f"  Class: {class_section}")
+
+                    # Build a per-entry parsed dict for _process_submission
+                    entry_parsed = dict(parsed)
+                    entry_parsed['portfolio_url'] = url
+                    entry_parsed['unit'] = unit
+
+                    success = self._process_submission(entry_parsed, idx, class_section=class_section)
+
+                    if success:
+                        self.state.mark_processed(submission_key)
+                        print(f"  ✓ Successfully processed")
+                    else:
+                        all_success = False
+                        print(f"  ✗ Processing failed")
+
+                if not any_new:
+                    pass  # all entries already processed
             
             if new_count == 0:
                 print("No new submissions to process.")
@@ -148,22 +179,32 @@ class BackgroundService:
             print(f"Error in processing cycle: {e}")
             traceback.print_exc()
     
-    def _process_submission(self, submission: Dict, row_number: int) -> bool:
+    def _process_submission(self, submission: Dict, row_number: int, class_section: str = "") -> bool:
         """
         Process a single submission
-        
+
         Args:
             submission: Parsed submission dict
             row_number: Row number in Google Sheet
-            
+            class_section: Optional class/course name for rubric lookup
+
         Returns:
             True if successful, False otherwise
         """
         try:
             # Get unit and rubric
             unit = submission.get('unit', '')
-            rubric = self.rubric_manager.get_rubric_for_unit(unit)
-            
+
+            # Try class-aware lookup first ("ClassName — UnitName"), then plain unit
+            rubric = None
+            if class_section:
+                rubric = self.rubric_manager.get_rubric_for_unit(f"{class_section} — {unit}")
+                if rubric:
+                    print(f"  Rubric matched by class+unit: '{class_section} — {unit}'")
+
+            if not rubric:
+                rubric = self.rubric_manager.get_rubric_for_unit(unit)
+
             if not rubric:
                 print(f"  ! No rubric configured for unit: {unit}")
                 self.sheets_client.update_status(row_number, "No rubric configured")

@@ -207,11 +207,13 @@ class GoogleSheetsClient:
                 f"{json.dumps(headers, indent=2)}\n\n"
                 "Map each header to exactly one of these standardized field names:\n"
                 "- timestamp: submission timestamp\n"
-                "- class_section: class or section identifier\n"
+                "- class_section: class or section or course identifier\n"
                 "- last_name: student's last name\n"
                 "- first_name: student's first name\n"
-                "- unit: assignment unit name\n"
-                "- portfolio_url: URL/link to the student's digital portfolio\n"
+                "- unit: assignment unit name (first/primary assignment)\n"
+                "- portfolio_url: URL/link to the student's portfolio (first/primary)\n"
+                "- unit_2: second assignment unit name (if present)\n"
+                "- portfolio_url_2: URL/link to the student's second portfolio page (if present)\n"
                 "- email: student's email address\n"
                 "- other: any column that does not match the above\n\n"
                 "Return ONLY a valid JSON object with no markdown formatting, for example:\n"
@@ -298,6 +300,9 @@ class GoogleSheetsClient:
         if not parsed.get('portfolio_url'):
             return None
 
+        entries = [{'url': parsed['portfolio_url'], 'unit': parsed.get('unit', '')}]
+        parsed['portfolio_entries'] = entries
+
         return parsed
 
     @staticmethod
@@ -336,7 +341,8 @@ class GoogleSheetsClient:
                 first_name = value
             elif field == 'last_name':
                 last_name = value
-            elif field in ('email', 'portfolio_url', 'unit', 'timestamp', 'class_section'):
+            elif field in ('email', 'portfolio_url', 'unit', 'timestamp',
+                           'class_section', 'portfolio_url_2', 'unit_2'):
                 if value:
                     parsed[field] = value
 
@@ -359,6 +365,14 @@ class GoogleSheetsClient:
         # Validate required fields
         if not parsed.get('portfolio_url'):
             return None
+
+        # Build portfolio_entries list (supports multiple assignments per submission)
+        entries = [{'url': parsed['portfolio_url'], 'unit': parsed.get('unit', '')}]
+        url2 = parsed.get('portfolio_url_2', '').strip()
+        unit2 = parsed.get('unit_2', '').strip()
+        if url2 and unit2:
+            entries.append({'url': url2, 'unit': unit2})
+        parsed['portfolio_entries'] = entries
 
         return parsed
 

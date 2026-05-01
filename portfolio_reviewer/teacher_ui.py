@@ -78,42 +78,58 @@ def render_rubric_management(rubric_manager: RubricManager, rubric_parser: Rubri
     
     if uploaded_file:
         col1, col2 = st.columns(2)
-        
+
         with col1:
             unit_name = st.text_input(
                 "Unit Name",
                 help="This should match the unit name in your Google Form exactly (e.g., 'Plane and Simple')"
             )
-        
+            class_name = st.text_input(
+                "Class / Course (optional)",
+                help=(
+                    "If you teach multiple classes with the same unit name, enter the class "
+                    "name here (e.g., 'AP History'). The rubric will be stored as "
+                    "'AP History — Plane and Simple' so it stays separate from other classes. "
+                    "Leave blank if you have only one class."
+                )
+            )
+
         with col2:
             due_date = st.date_input(
                 "Due Date",
                 min_value=date(2020, 1, 1)
             )
-        
+
         if st.button("Parse and Add Rubric"):
             if not unit_name:
                 st.error("Please enter a unit name")
             else:
+                # Build the stored key: "ClassName — UnitName" or just "UnitName"
+                stored_unit_name = (
+                    f"{class_name.strip()} — {unit_name.strip()}"
+                    if class_name.strip()
+                    else unit_name.strip()
+                )
+
                 with st.spinner("Parsing rubric PDF..."):
                     # Save uploaded file temporarily
                     temp_path = config.RUBRICS_DIR / uploaded_file.name
                     with open(temp_path, 'wb') as f:
                         f.write(uploaded_file.getvalue())
-                    
+
                     # Parse PDF
                     rubric = rubric_parser.parse_pdf(temp_path)
-                    
+
                     if rubric:
                         # Add to manager
                         rubric_manager.add_rubric(
                             rubric=rubric,
-                            unit_name=unit_name,
+                            unit_name=stored_unit_name,
                             due_date=due_date.strftime('%Y-%m-%d'),
                             pdf_path=temp_path
                         )
                         
-                        st.success(f"✅ Successfully added rubric for {unit_name}")
+                        st.success(f"✅ Successfully added rubric for {stored_unit_name}")
                         
                         # Show parsed criteria
                         with st.expander("View Parsed Criteria"):

@@ -1,6 +1,9 @@
 """
-Gmail integration for creating draft emails with scored feedback
-Uses IMAP (like agent.py) - works with App Password, no admin needed
+Gmail integration for creating draft emails with scored feedback.
+Tries IMAP first (creates a true draft).  If IMAP is blocked (common on
+school Google Workspace accounts), falls back to sending the review email
+directly to the teacher via SMTP_SSL so the teacher is never left without
+notification of a late submission.
 """
 import sys
 from pathlib import Path
@@ -10,6 +13,7 @@ parent_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(parent_dir))
 
 import imaplib
+import smtplib
 import time
 from datetime import datetime
 from email.message import EmailMessage
@@ -145,13 +149,67 @@ class GmailDraftCreator:
 
             if typ != "OK":
                 print(f"IMAP append failed: {typ}, {data}")
-                return False
+                raise RuntimeError(f"IMAP append returned {typ}")
 
             print(f"✓ Teacher draft created for {student_name} ({student_email})")
             return True
 
         except Exception as e:
-            print(f"Error creating teacher draft: {e}")
+            print(f"IMAP draft creation failed ({e}). Falling back to teacher review email...")
+            import traceback
+            traceback.print_exc()
+            return self._send_teacher_review_email_fallback(
+                student_email=student_email,
+                student_name=student_name,
+                unit=unit,
+                rubric_title=rubric_title,
+                output=output,
+                submission_date=submission_date,
+                due_date=due_date,
+            )
+
+    def _send_teacher_review_email_fallback(
+        self,
+        student_email: str,
+        student_name: str,
+        unit: str,
+        rubric_title: str,
+        output: RunOutput,
+        submission_date: Optional[str] = None,
+        due_date: Optional[datetime] = None,
+    ) -> bool:
+        """
+        Send a scored review email directly to the teacher when IMAP draft
+        creation is unavailable (e.g. IMAP disabled on school Google Workspace).
+        The teacher receives the same content they would see in a draft.
+        """
+        try:
+            subject = f"[REVIEW NEEDED — PAST DUE] {student_name} — {unit} — {rubric_title}"
+            body_html = self._build_teacher_draft_body(
+                student_email=student_email,
+                student_name=student_name,
+                unit=unit,
+                rubric_title=rubric_title,
+                output=output,
+                submission_date=submission_date,
+                due_date=due_date,
+            )
+
+            msg = EmailMessage()
+            msg["From"] = config.TEACHER_EMAIL
+            msg["To"] = config.TEACHER_EMAIL
+            msg["Subject"] = subject
+            msg.set_content(body_html, subtype="html")
+
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, local_hostname="localhost") as smtp:
+                smtp.login(config.TEACHER_EMAIL, config.GMAIL_APP_PASSWORD)
+                smtp.send_message(msg)
+
+            print(f"✓ Teacher review email (fallback) sent to {config.TEACHER_EMAIL}")
+            return True
+
+        except Exception as e2:
+            print(f"Teacher review email fallback also failed: {e2}")
             import traceback
             traceback.print_exc()
             return False
