@@ -3,7 +3,6 @@
 
 > **Built for educators who shouldn't have to choose between giving great feedback and having time to teach.**
 
----
 
 ## The Problem
 
@@ -11,7 +10,6 @@ Digital portfolio assignments are among the most valuable — and most time-cons
 
 DPAssist solves this by automating the feedback loop entirely — while keeping the teacher in control of every final grade.
 
----
 
 ## What It Does
 
@@ -25,7 +23,6 @@ DPAssist is a background service that runs on a teacher's computer (or in the cl
 
 The teacher uploads a rubric PDF once. After that, everything runs automatically.
 
----
 
 ## Key Design Decisions
 
