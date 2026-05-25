@@ -1,317 +1,311 @@
-# DPAssist - Setup Guide
+# DPAssist – Setup Guide
 
-Complete setup instructions for teachers (no programming experience required).
+Complete setup instructions for teachers. No programming experience required.
 
-## What This System Does
+---
 
-1. **Reads student portfolio submissions** from your Google Form responses
-2. **Scrapes portfolio content** from Google Sites or GitHub Pages
-3. **Evaluates using AI** (Gemini) against your uploaded rubrics
-4. **Sends feedback** (no scores) before the due date
-5. **Creates draft emails** (with scores) in your Gmail after the due date
-6. **Runs automatically** every 60 seconds in the background
+## Before You Begin
+
+You will need:
+- A Mac or Windows computer
+- A Gmail account (this will be the "teacher" email that sends and receives feedback)
+- A Google Form already set up to collect student portfolio submissions
+- The Google Sheet linked to that form (Google Forms creates this automatically)
+- Your rubric as a PDF file
+
+The setup takes about 45–60 minutes the first time. Once it's done, you won't need to repeat it.
 
 ---
 
 ## Step 1: Install Python
 
-### Mac:
-1. Open Terminal (search for "Terminal" in Spotlight)
-2. Type: `python3 --version`
-3. If you see a version number (like 3.9.x or higher), skip to Step 2
-4. If not, download Python from: https://www.python.org/downloads/
-5. Install Python, making sure to check "Add Python to PATH"
+Python is the programming language this app runs on. Think of it like installing a language your computer needs to understand the app.
 
-### Windows:
-1. Download Python from: https://www.python.org/downloads/
-2. Run the installer
-3. **IMPORTANT**: Check the box "Add Python to PATH" at the bottom
-4. Click "Install Now"
-5. Open Command Prompt and type: `python --version`
-6. You should see a version number (3.9.x or higher)
-
----
-
-## Step 2: Download the Project
-
-1. Download all project files to a folder on your computer (e.g., `Desktop/PortfolioReviewer`)
-2. Make sure you have these files:
-   - `launcher.py`
-   - `background_service.py`
-   - `teacher_ui.py`
-   - `config.py`
-   - `requirements.txt`
-   - `.env.example`
-   - All the other `.py` files
-
----
-
-## Step 3: Install Required Software
-
-### Mac:
-1. Open Terminal
-2. Navigate to your project folder:
-   ```bash
-   cd Desktop/PortfolioReviewer
+### On a Mac:
+1. Press **Command + Space** to open Spotlight Search
+2. Type **Terminal** and press Enter — a black window will open
+3. Type the following and press Enter:
    ```
-3. Install dependencies:
-   ```bash
+   python3 --version
+   ```
+4. If you see something like `Python 3.11.2`, you already have it — skip to Step 2
+5. If you get an error, go to **https://www.python.org/downloads/** and click the big yellow Download button
+6. Open the downloaded file and follow the installer — all default options are fine
+
+### On Windows:
+1. Go to **https://www.python.org/downloads/** and click the big yellow Download button
+2. Open the downloaded file
+3. **Important:** On the first screen, check the box that says **"Add Python to PATH"** before clicking anything else
+4. Click **Install Now**
+5. When it finishes, click **Close**
+
+---
+
+## Step 2: Download DPAssist
+
+1. Go to the DPAssist GitHub page
+2. Click the green **Code** button
+3. Click **Download ZIP**
+4. Find the downloaded ZIP file (usually in your Downloads folder)
+5. Double-click it to unzip
+6. Move the unzipped folder to your Desktop and rename it **DPAssist**
+
+---
+
+## Step 3: Install the App's Dependencies
+
+Dependencies are small software packages the app needs to run — like ingredients for a recipe.
+
+### On a Mac:
+1. Open Terminal (Command + Space, type Terminal)
+2. Type the following and press Enter:
+   ```
+   cd Desktop/DPAssist/portfolio_reviewer
+   ```
+3. Then type this and press Enter:
+   ```
    pip3 install -r requirements.txt
    ```
+4. Wait for it to finish — this takes 2–5 minutes. You'll see a lot of text scrolling by — that's normal.
 
-### Windows:
-1. Open Command Prompt
-2. Navigate to your project folder:
+### On Windows:
+1. Click the Start menu and search for **Command Prompt**
+2. Type the following and press Enter:
    ```
-   cd Desktop\PortfolioReviewer
+   cd Desktop\DPAssist\portfolio_reviewer
    ```
-3. Install dependencies:
+3. Then type this and press Enter:
    ```
    pip install -r requirements.txt
    ```
-
-**Wait for installation to complete** (this may take a few minutes).
-
----
-
-## Step 4: Setup Google Credentials
-
-### A. Get Service Account Credentials
-
-1. Go to: https://console.cloud.google.com/
-2. Create a new project (or select existing one)
-3. Enable these APIs:
-   - Google Sheets API
-   - Gmail API
-   - Google Drive API
-4. Go to "IAM & Admin" → "Service Accounts"
-5. Click "Create Service Account"
-6. Name it: `portfolio-grader`
-7. Click "Create and Continue"
-8. Skip granting roles (click "Continue")
-9. Click "Done"
-10. Click on the service account you just created
-11. Go to "Keys" tab
-12. Click "Add Key" → "Create New Key"
-13. Choose "JSON"
-14. Download the file
-15. **Rename it to:** `service-account-credentials.json`
-16. **Move it to your project folder**
-
-### B. Share Your Google Sheet
-
-1. Open the downloaded `service-account-credentials.json` file
-2. Find the `client_email` field (looks like: `portfolio-grader@xxx.iam.gserviceaccount.com`)
-3. Copy this email address
-4. Open your Google Sheet with form responses
-5. Click "Share" button
-6. Paste the service account email
-7. Give it "Editor" permissions
-8. Click "Send"
-
-### C. Enable Gmail Domain Delegation (for draft emails)
-
-**NOTE:** This requires Google Workspace admin access. If you don't have admin access, you'll need to ask your IT department for help.
-
-1. Go to: https://admin.google.com/
-2. Navigate to: Security → API Controls → Domain-wide Delegation
-3. Click "Add new"
-4. Paste the service account's "Client ID" (from the JSON file)
-5. Add this scope: `https://www.googleapis.com/auth/gmail.compose`
-6. Click "Authorize"
+4. Wait for it to finish.
 
 ---
 
-## Step 5: Get Gemini API Key
+## Step 4: Set Up Google Access
 
-1. Go to: https://aistudio.google.com/app/apikey
-2. Click "Create API Key"
-3. Copy the key (starts with `AIza...`)
-4. Keep it somewhere safe (you'll need it in the next step)
+DPAssist needs permission to read your Google Sheet and send emails through Gmail. This section walks you through both.
+
+### Part A: Create a Google Cloud Project
+
+This gives DPAssist a secure way to read your Google Sheet.
+
+1. Go to **https://console.cloud.google.com/**
+2. Sign in with your Google account
+3. At the top of the page, click **Select a project** → **New Project**
+4. Name it **DPAssist** and click **Create**
+5. Make sure your new project is selected at the top of the page
+
+### Part B: Enable the Google Sheets API
+
+1. In the left menu, click **APIs & Services** → **Library**
+2. Search for **Google Sheets API**
+3. Click on it and click **Enable**
+4. Go back to the Library, search for **Google Drive API**, and enable that too
+
+### Part C: Create a Service Account
+
+A service account is like a special robot helper that has permission to read your sheet.
+
+1. In the left menu, click **APIs & Services** → **Credentials**
+2. Click **+ Create Credentials** → **Service Account**
+3. Name it **dpassist-reader** and click **Create and Continue**
+4. Skip the optional steps and click **Done**
+5. You'll see your new service account listed — click on it
+6. Click the **Keys** tab
+7. Click **Add Key** → **Create New Key**
+8. Choose **JSON** and click **Create**
+9. A file will download automatically — this is your credentials file
+10. Rename it to exactly: `service-account-credentials.json`
+11. Move it into the `DPAssist/portfolio_reviewer/` folder on your Desktop
+
+### Part D: Share Your Google Sheet with the Service Account
+
+1. Open the `service-account-credentials.json` file in a text editor (TextEdit on Mac, Notepad on Windows)
+2. Find the line that says `"client_email"` — copy the email address next to it (it looks like `dpassist-reader@something.iam.gserviceaccount.com`)
+3. Open your Google Sheet (the one connected to your Google Form)
+4. Click the **Share** button in the top right
+5. Paste the service account email address
+6. Set the permission to **Editor**
+7. Uncheck "Notify people" and click **Share**
 
 ---
 
-## Step 6: Configure the System
+## Step 5: Set Up Gmail for Sending Emails
 
-1. In your project folder, find `.env.example`
-2. **Copy it** and rename the copy to `.env` (just `.env`, no `.example`)
-3. Open `.env` in a text editor (TextEdit on Mac, Notepad on Windows)
-4. Fill in your information:
+DPAssist sends feedback emails to students and creates draft emails for you using your Gmail. To do this safely, you need to create a special one-time password called an **App Password**.
+
+> **Note:** App Passwords only work if you have 2-Step Verification turned on in your Google account. If you don't have it on, Google will prompt you to enable it during this process.
+
+1. Go to **https://myaccount.google.com/**
+2. Click **Security** in the left menu
+3. Under "How you sign in to Google", click **2-Step Verification** and make sure it's on
+4. Go back to Security and scroll down to find **App passwords** (you may need to search for it in the search bar at the top)
+5. Click **App passwords**
+6. Under "Select app" choose **Mail**
+7. Under "Select device" choose **Other** and type **DPAssist**
+8. Click **Generate**
+9. Google will show you a 16-character password like `abcd efgh ijkl mnop`
+10. **Copy this password and save it somewhere safe** — you'll need it in the next step and Google will not show it again
+
+---
+
+## Step 6: Get a Gemini API Key
+
+This is what gives DPAssist its AI brain for evaluating portfolios.
+
+1. Go to **https://aistudio.google.com/app/apikey**
+2. Sign in with your Google account
+3. Click **Create API Key**
+4. Copy the key — it starts with `AIza` and is about 40 characters long
+5. Save it somewhere safe
+
+The free tier is sufficient for most classroom sizes.
+
+---
+
+## Step 7: Configure DPAssist
+
+Now you'll connect everything together.
+
+1. Open the `DPAssist/portfolio_reviewer/` folder on your Desktop
+2. Find the file called `.env.example`
+3. Make a copy of it and rename the copy to `.env` (just `.env` — delete the word "example")
+4. Open the `.env` file in a text editor
+5. Fill in each line with your information:
 
 ```
 GOOGLE_CREDENTIALS_PATH=service-account-credentials.json
-GOOGLE_SHEET_ID=1bHU943lMaKwU0HjjwFoO0Dqcc1CB64-bZ5vuKhvWFbw
-GEMINI_API_KEY=AIzaXXXXXXXXXXXXXXXXXXXX
+GOOGLE_SHEET_ID=paste-your-sheet-id-here
+GEMINI_API_KEY=paste-your-gemini-key-here
 TEACHER_EMAIL=your.email@gmail.com
+GMAIL_APP_PASSWORD=paste-your-16-character-app-password-here
 CHECK_INTERVAL_SECONDS=60
 ```
 
-**How to find your Sheet ID:**
+**How to find your Google Sheet ID:**
 - Open your Google Sheet
-- Look at the URL: `https://docs.google.com/spreadsheets/d/1bHU943lMaKwU0HjjwFoO0Dqcc1CB64-bZ5vuKhvWFbw/edit`
-- The Sheet ID is the long string between `/d/` and `/edit`
+- Look at the web address at the top of your browser
+- It will look like: `https://docs.google.com/spreadsheets/d/XXXXXXXXXXXXXXXXXXXXXXXX/edit`
+- The Sheet ID is the long string of letters and numbers between `/d/` and `/edit`
+- Copy just that part and paste it into your `.env` file
 
-5. Save the `.env` file
+6. Save the `.env` file
 
 ---
 
-## Step 7: Start the System
+## Step 8: Start DPAssist
 
-### Mac:
+### On a Mac:
 1. Open Terminal
-2. Navigate to project folder: `cd Desktop/PortfolioReviewer`
-3. Run: `python3 launcher.py`
+2. Type:
+   ```
+   cd Desktop/DPAssist/portfolio_reviewer
+   ```
+3. Then:
+   ```
+   python3 launcher.py
+   ```
 
-### Windows:
+### On Windows:
 1. Open Command Prompt
-2. Navigate to project folder: `cd Desktop\PortfolioReviewer`
-3. Run: `python launcher.py`
-
-**OR - Create a shortcut (easier):**
-
-### Mac:
-1. Right-click `launcher.py`
-2. Select "Open With" → "Python Launcher"
-3. Double-click `launcher.py` to start
-
-### Windows:
-1. Create a new text file called `Start DPAssist.bat`
-2. Add this line:
+2. Type:
+   ```
+   cd Desktop\DPAssist\portfolio_reviewer
+   ```
+3. Then:
    ```
    python launcher.py
-   pause
    ```
-3. Save it
-4. Double-click the `.bat` file to start
+
+A window called **DPAssist Control Panel** will open.
 
 ---
 
-## Step 8: Use the System
+## Step 9: Daily Use
 
-### A. Launch Window
+### Starting up each day:
+1. Run `python3 launcher.py` (or `python launcher.py` on Windows)
+2. Click **Start Background Service** — the dot next to it will turn green
+3. Click **Open Teacher Dashboard** — this opens in your web browser
+4. Leave the Control Panel window open in the background while you work
 
-When you run the launcher, you'll see:
-- **Start Background Service** button - starts automatic processing
-- **Open Teacher Dashboard** button - opens web interface for managing rubrics
+### Adding a rubric (do this once per assignment):
+1. In the Teacher Dashboard, click **Rubrics** in the left menu
+2. Click **Upload Rubric PDF** and choose your rubric file
+3. In the **Unit Name** field, type the unit name **exactly** as it appears in your Google Form dropdown — capitalization matters
+4. If you teach multiple classes with the same unit, add the class name in the **Class/Course** field
+5. Set the **Due Date**
+6. Click **Parse and Add Rubric**
+7. The system will read your rubric and confirm the criteria it found
 
-### B. Add Rubrics
+### Monitoring submissions:
+- Click **Submissions** in the left menu to see all student submissions and their status
+- Before the due date: students receive feedback emails automatically
+- After the due date: scored draft emails appear in your Gmail Drafts folder for you to review and send
 
-1. Click "Open Teacher Dashboard"
-2. Go to "Rubrics" page
-3. Upload your rubric PDF
-4. Enter the **exact unit name** from your Google Form
-5. Set the due date
-6. Click "Parse and Add Rubric"
-
-### C. Monitor Submissions
-
-1. In the Teacher Dashboard, go to "Submissions" page
-2. See all student submissions and their processing status
-3. Check if drafts were created
-
-### D. Background Processing
-
-- The background service runs **every 60 seconds**
-- It checks for new submissions
-- Evaluates portfolios automatically
-- Creates feedback/drafts based on due date
-- **Keep the launcher window open** while it's running
+### Shutting down:
+1. Click **Stop Background Service**
+2. Close the Control Panel window
 
 ---
 
 ## Important Notes
 
-### Security
-- **NEVER** commit `.env` or `service-account-credentials.json` to GitHub
-- These files are already in `.gitignore` to protect you
-- Keep your API keys private
+**The unit name must match exactly.**
+When you upload a rubric, the Unit Name you type must be identical to what appears in your Google Form. If the form says "Milling About", type exactly "Milling About" — not "milling about" or "Milling About!".
 
-### Google Sheet Headers
-The system expects these columns in your Google Sheet:
-- Timestamp
-- What is your class section?
-- What is your LAST name?
-- What is your first name?
-- Select the unit
-- Portfolio URL (with "PUBLISHED" in the column name)
-- What is your email address?
-- Status
-- Feedback Sent
-- Last Processed
+**Keep the Control Panel open.**
+The background service only runs while the Control Panel window is open. If you close it, processing stops.
 
-The system will auto-create the last 3 columns if they don't exist.
+**Gmail drafts appear after the deadline.**
+Before the due date, feedback emails go directly to students (without scores). After the due date, DPAssist creates a draft in your Gmail for each student — with full scores — for you to review before sending.
 
-### Rubric Matching
-- The "Unit Name" you enter when uploading a rubric **must exactly match** the unit name from the Google Form dropdown
-- Example: If form says "Plane and Simple", use exactly "Plane and Simple" (not "plane and simple" or "Plane & Simple")
-
-### Gmail Drafts
-- Drafts will appear in **your** Gmail drafts folder (the teacher email you specified)
-- You can review and edit them before sending
-- This happens only AFTER the due date
+**Your credentials are private.**
+The `.env` file and `service-account-credentials.json` are never uploaded to GitHub. They stay on your computer only.
 
 ---
 
 ## Troubleshooting
 
-### "Configuration Issues" error
-- Check that your `.env` file exists and has all fields filled in
-- Make sure `service-account-credentials.json` is in the project folder
-- Verify the Sheet ID is correct
+**"Configuration Issues" appears when opening the dashboard**
+- Check that your `.env` file exists in the `portfolio_reviewer` folder
+- Make sure every line in `.env` is filled in with no blank values
+- Make sure `service-account-credentials.json` is in the same folder
 
-### "Failed to connect to Google Sheets"
-- Make sure you shared the Google Sheet with the service account email
-- Check that the service account has "Editor" permissions
-- Verify the Sheet ID in `.env` is correct
+**"Failed to connect to Google Sheets"**
+- Double-check that you shared the Google Sheet with the service account email address
+- Make sure the Sheet ID in your `.env` file is correct (no extra spaces)
 
-### "Gmail API connection error"
-- Make sure you enabled Gmail API in Google Cloud Console
-- Verify domain-wide delegation is set up correctly
-- Check that the teacher email in `.env` matches your actual email
+**Students are not receiving emails**
+- Check that your Gmail App Password is correct in the `.env` file
+- Make sure 2-Step Verification is enabled on your Google account
+- Look at the log output in the Control Panel for specific error messages
 
-### Rubric parsing fails
-- Make sure the PDF has clear section headers with point values
-- Try a different PDF format
-- Contact support if rubrics consistently fail to parse
+**Rubric parsing fails**
+- Make sure your PDF rubric has clear section titles and point values
+- Try re-saving the PDF from its original source
+- If your rubric is in a table format, try exporting it as a plain PDF
 
-### Background service not processing
-- Check that the launcher shows "Background Service: 🟢 Running"
-- Look at the log output for error messages
-- Verify your Google Sheet has new submissions
-- Make sure rubrics are configured for the units students submitted
+**The background service stops unexpectedly**
+- Check the log in the Control Panel for error messages
+- Make sure your computer hasn't gone to sleep — adjust your energy settings to prevent sleep while the service is running
 
 ---
 
-## Getting Help
+## Google Sheet Column Requirements
 
-If you encounter issues:
-1. Check the log output in the launcher window
-2. Look for error messages in red
-3. Verify all setup steps were completed
-4. Check that all API credentials are correct
+DPAssist expects your Google Form responses sheet to have columns with these names (Google Forms creates most of these automatically):
 
----
+- Timestamp
+- What is your class section?
+- What is your last name?
+- What is your first name?
+- Select the unit
+- A column with "PUBLISHED" in the name (for the portfolio URL)
+- What is your email address?
 
-## Updating the System
-
-When updates are available:
-1. Download new files
-2. Replace old files in your folder
-3. Run: `pip install -r requirements.txt --upgrade`
-4. Restart the launcher
-
----
-
-## Daily Use
-
-**To start grading:**
-1. Double-click launcher (or run `python launcher.py`)
-2. Click "Start Background Service"
-3. Leave the window open
-4. Check "Open Teacher Dashboard" to manage rubrics or view submissions
-
-**When finished:**
-- Click "Stop Background Service"
-- Close the launcher window
-
-**That's it! The system will automatically grade portfolios every 60 seconds while running.**
+DPAssist will automatically add three columns if they don't exist yet:
+- Status
+- Feedback Sent
+- Last Processed
