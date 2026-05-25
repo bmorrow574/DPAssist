@@ -2,7 +2,6 @@
 
 Complete setup instructions for teachers. No programming experience required.
 
----
 
 ## Before You Begin
 
@@ -15,7 +14,6 @@ You will need:
 
 The setup takes about 45–60 minutes the first time. Once it's done, you won't need to repeat it.
 
----
 
 ## Step 1: Install Python
 
@@ -39,7 +37,6 @@ Python is the programming language this app runs on. Think of it like installing
 4. Click **Install Now**
 5. When it finishes, click **Close**
 
----
 
 ## Step 2: Download DPAssist
 
@@ -50,7 +47,6 @@ Python is the programming language this app runs on. Think of it like installing
 5. Double-click it to unzip
 6. Move the unzipped folder to your Desktop and rename it **DPAssist**
 
----
 
 ## Step 3: Install the App's Dependencies
 
@@ -80,7 +76,6 @@ Dependencies are small software packages the app needs to run — like ingredien
    ```
 4. Wait for it to finish.
 
----
 
 ## Step 4: Set Up Google Access
 
@@ -129,7 +124,6 @@ A service account is like a special robot helper that has permission to read you
 6. Set the permission to **Editor**
 7. Uncheck "Notify people" and click **Share**
 
----
 
 ## Step 5: Set Up Gmail for Sending Emails
 
@@ -148,7 +142,6 @@ DPAssist sends feedback emails to students and creates draft emails for you usin
 9. Google will show you a 16-character password like `abcd efgh ijkl mnop`
 10. **Copy this password and save it somewhere safe** — you'll need it in the next step and Google will not show it again
 
----
 
 ## Step 6: Get a Gemini API Key
 
@@ -161,8 +154,6 @@ This is what gives DPAssist its AI brain for evaluating portfolios.
 5. Save it somewhere safe
 
 The free tier is sufficient for most classroom sizes.
-
----
 
 ## Step 7: Configure DPAssist
 
@@ -192,7 +183,6 @@ CHECK_INTERVAL_SECONDS=60
 
 6. Save the `.env` file
 
----
 
 ## Step 8: Start DPAssist
 
@@ -220,8 +210,6 @@ CHECK_INTERVAL_SECONDS=60
 
 A window called **DPAssist Control Panel** will open.
 
----
-
 ## Step 9: Daily Use
 
 ### Starting up each day:
@@ -248,7 +236,6 @@ A window called **DPAssist Control Panel** will open.
 1. Click **Stop Background Service**
 2. Close the Control Panel window
 
----
 
 ## Important Notes
 
@@ -264,7 +251,6 @@ Before the due date, feedback emails go directly to students (without scores). A
 **Your credentials are private.**
 The `.env` file and `service-account-credentials.json` are never uploaded to GitHub. They stay on your computer only.
 
----
 
 ## Troubleshooting
 
@@ -291,7 +277,6 @@ The `.env` file and `service-account-credentials.json` are never uploaded to Git
 - Check the log in the Control Panel for error messages
 - Make sure your computer hasn't gone to sleep — adjust your energy settings to prevent sleep while the service is running
 
----
 
 ## Google Sheet Column Requirements
 
