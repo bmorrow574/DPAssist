@@ -230,7 +230,7 @@ def render_system_status():
             "Google Sheets": bool(config.GOOGLE_SHEET_ID),
             "Gemini API": bool(config.GEMINI_API_KEY),
             "Gmail": bool(config.TEACHER_EMAIL),
-            "Credentials File": Path(config.GOOGLE_CREDENTIALS_PATH).exists()
+            "Credentials File": Path(config.GOOGLE_CREDENTIALS_PATH).exists() or bool(config.GOOGLE_CREDENTIALS_JSON)
         }
         
         for component, status in checks.items():
