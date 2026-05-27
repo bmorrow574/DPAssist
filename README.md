@@ -1,4 +1,9 @@
 # DPAssist
+
+## 📺 Demo Video
+
+[![Watch DPAssist in action](https://img.youtube.com/vi/u0C-5i633i0/0.jpg)](https://youtu.be/u0C-5i633i0?si=MShwbzpioF1n3N7k)
+
 ### AI-Powered Portfolio Evaluation for Teachers
 
 > **Built for educators who shouldn't have to choose between giving great feedback and having time to teach.**
