@@ -1,13 +1,15 @@
 # DPAssist
-
 ## 📺 Demo Video
 
-[![Watch DPAssist in action](https://img.youtube.com/vi/u0C-5i633i0/0.jpg)](https://youtu.be/u0C-5i633i0?si=MShwbzpioF1n3N7k)
-
+| | |
+|---|---|
+| [![Watch DPAssist in action](https://img.youtube.com/vi/u0C-5i633i0/0.jpg)](https://youtu.be/u0C-5i633i0?si=MShwbzpioF1n3N7k) | [![Teacher Setup Guide](https://img.shields.io/badge/📖%20Teacher%20Setup%20Guide-Click%20to%20Open-blue?style=for-the-badge)](https://bmorrow574.github.io/DPAssist/portfolio_reviewer/DPAssist_Teacher_Setup.html) |
+| Watch the demo | Step-by-step setup instructions |
 ### AI-Powered Portfolio Evaluation for Teachers
 
 > **Built for educators who shouldn't have to choose between giving great feedback and having time to teach.**
 
+---
 
 ## The Problem
 
@@ -15,6 +17,7 @@ Digital portfolio assignments are among the most valuable — and most time-cons
 
 DPAssist solves this by automating the feedback loop entirely — while keeping the teacher in control of every final grade.
 
+---
 
 ## What It Does
 
@@ -28,6 +31,7 @@ DPAssist is a background service that runs on a teacher's computer (or in the cl
 
 The teacher uploads a rubric PDF once. After that, everything runs automatically.
 
+---
 
 ## Key Design Decisions
 
@@ -191,3 +195,4 @@ Proprietary — Educational use only.
 ---
 
 *DPAssist — because teachers' time is better spent teaching.*
+
