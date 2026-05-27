@@ -59,6 +59,7 @@ Thumbs.db
 # Rubric uploads
 rubrics/
 *.pdf
+!portfolio_reviewer/TEACHER_SETUP.pdf
 
 # Processing state
 processing_state.json.claude/
