@@ -189,3 +189,7 @@ Proprietary — Educational use only.
 ---
 
 *DPAssist — because teachers' time is better spent teaching.*
+
+## 📺 Demo Video
+
+[![Watch DPAssist in action](https://img.youtube.com/vi/u0C-5i633i0/0.jpg)](https://youtu.be/u0C-5i633i0?si=MShwbzpioF1n3N7k)
