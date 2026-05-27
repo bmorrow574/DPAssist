@@ -1,10 +1,15 @@
 # DPAssist
+### AI-Powered Portfolio Evaluation for Teachers
+
+> **Built for educators who shouldn't have to choose between giving great feedback and having time to teach.**
+
 ## 📺 Demo Video
 
-| | |
-|---|---|
-| [![Watch DPAssist in action](https://img.youtube.com/vi/u0C-5i633i0/0.jpg)](https://youtu.be/u0C-5i633i0?si=MShwbzpioF1n3N7k) | [![Teacher Setup Guide](https://img.shields.io/badge/📖%20Teacher%20Setup%20Guide-Click%20to%20Open-blue?style=for-the-badge)](https://bmorrow574.github.io/DPAssist/portfolio_reviewer/DPAssist_Teacher_Setup.html) |
-| Watch the demo | Step-by-step setup instructions |
+[![Watch DPAssist in action](https://img.youtube.com/vi/u0C-5i633i0/0.jpg)](https://youtu.be/u0C-5i633i0?si=MShwbzpioF1n3N7k)
+
+👉 **[Try it live — dpassist-edu.streamlit.app](https://dpassist-edu.streamlit.app)**
+
+📖 **[Teacher Setup Guide](https://bmorrow574.github.io/DPAssist/portfolio_reviewer/DPAssist_Teacher_Setup.html)**
 ### AI-Powered Portfolio Evaluation for Teachers
 
 > **Built for educators who shouldn't have to choose between giving great feedback and having time to teach.**
