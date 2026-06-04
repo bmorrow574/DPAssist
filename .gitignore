@@ -81,4 +81,4 @@ portfolio_reviewer/rubrics/
 portfolio_reviewer/processing_state.json
 *.json
 !package.json
-.env
+.envportfolio_reviewer/rubrics/*.json
