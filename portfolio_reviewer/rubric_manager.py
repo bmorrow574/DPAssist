@@ -38,7 +38,7 @@ class RubricManager:
         self._sheets_client_lazy = None
 
         # Determine storage mode
-        use_sheets_env = os.getenv('RUBRIC_STORAGE', 'local').lower() == 'sheets'
+        use_sheets_env = config.RUBRIC_STORAGE.lower() == 'sheets'
         self._use_sheets = (sheets_client is not None) or use_sheets_env
 
         if not self._use_sheets:
