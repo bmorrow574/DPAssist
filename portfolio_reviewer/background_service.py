@@ -68,7 +68,7 @@ class BackgroundService:
         self.evaluator = PortfolioEvaluator()
         self.gmail = GmailDraftCreator()
         self.email_service = EmailService()
-        self.rubric_manager = RubricManager()
+        self.rubric_manager = RubricManager(sheets_client=self.sheets_client)
         self.state = ProcessingState(config.STATE_FILE)
         
         self.running = False
