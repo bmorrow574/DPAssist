@@ -163,7 +163,7 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
             status = record.get('Status', 'Pending')
             statuses[status] = statuses.get(status, 0) + 1
         
-        col2.metric("Processed", statuses.get('Draft created', 0))
+        col2.metric("Processed", statuses.get('Teacher draft created', 0) + statuses.get('Draft created', 0))
         col3.metric("Pending", statuses.get('Pending', 0) + statuses.get('Processing', 0))
         
         st.divider()

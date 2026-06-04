@@ -122,7 +122,7 @@ class RubricManager:
     def _get_sheets_record(self, unit_name: str) -> Optional[Dict]:
         records = self._sheets.get_all_rubrics_from_sheet()
         for r in records:
-            if r.get('unit_name') == unit_name:
+            if r.get('unit_name', '').strip().lower() == unit_name.strip().lower():
                 return r
         return None
 
