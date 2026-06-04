@@ -54,7 +54,7 @@ class Config:
 
     # Rubric storage: "local" (default, uses portfolio_reviewer/rubrics/ folder)
     # or "sheets" (stores rubrics in a Google Sheet tab — required for cloud deployment)
-    RUBRIC_STORAGE = _get_secret('RUBRIC_STORAGE', 'local')
+    RUBRIC_STORAGE = _get_secret('RUBRIC_STORAGE', 'sheets')
 
     # Paths
     BASE_DIR = Path(__file__).parent  # portfolio_reviewer folder
