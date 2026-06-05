@@ -1,103 +1,207 @@
-# DPAssist — Quick Start
+# DPAssist — Quick Start Guide
 
-Two ways to run DPAssist. Choose the one that works best for you.
+## Welcome to DPAssist
+
+DPAssist automatically evaluates student engineering portfolios, provides AI-generated feedback, and helps teachers manage portfolio-based assessment with minimal manual grading.
+
+Most teachers can be up and running in less than five minutes.
 
 ---
 
-## Path A: Cloud (Recommended)
+# Step 1 — Open the Teacher Dashboard
 
-No installation required. Works in any browser on any computer.
+Open the DPAssist Teacher Dashboard in your web browser.
 
-### Step 1 — Open the Teacher Dashboard
-Go to your Streamlit URL (example: `https://your-app-name.streamlit.app`)
+Example:
 
-Bookmark this link — it's all you need every day.
+```text
+https://your-school-dpassist.streamlit.app
+```
 
-### Step 2 — Add Your Rubric (First time only, once per assignment)
-1. Click **Rubrics** in the left menu
-2. Click **Upload Rubric PDF** and choose your rubric file
-3. Type the **Unit Name** exactly as it appears in your Google Form
-4. Set the **Due Date**
+No software installation is required.
+
+---
+
+# Step 2 — Upload a Rubric
+
+Before students submit portfolios, create a rubric.
+
+1. Click **Rubrics**
+2. Upload a rubric PDF
+3. Enter the Unit Name
+4. Set the Due Date
 5. Click **Parse and Add Rubric**
 
-### Step 3 — That's It
-The background processor runs 24/7 automatically. Every 60 seconds it:
-- ✅ Checks your Google Sheet for new submissions
-- ✅ Scrapes the student's portfolio
-- ✅ Evaluates it against your rubric using AI
-- ✅ Before deadline → emails feedback directly to student (no scores)
-- ✅ After deadline → creates a scored draft in your Gmail for review
-
-Check the **Submissions** page anytime to see status.
+The rubric is automatically stored in the cloud.
 
 ---
 
-## Path B: Local (If cloud is unavailable)
+# Step 3 — Verify the Unit Name
 
-Runs on your own computer. Requires one-time setup (see SETUP_GUIDE.md).
+The Unit Name entered in DPAssist must exactly match the Unit Name used in the student Google Form.
 
-### Step 1 — Start the App
-**Mac:** Double-click `START.command`
-**Windows:** Double-click `START.bat`
+Example:
 
-The DPAssist Control Panel window will open.
+```text
+Milling About
+```
 
-### Step 2 — Start the Services
-1. Click **Start Background Service** — dot turns green 🟢
-2. Click **Open Teacher Dashboard** — opens in your browser
+must match
 
-### Step 3 — Add Your Rubric (First time only, once per assignment)
-1. Click **Rubrics** in the left menu
-2. Click **Upload Rubric PDF** and choose your rubric file
-3. Type the **Unit Name** exactly as it appears in your Google Form
-4. Set the **Due Date**
-5. Click **Parse and Add Rubric**
+```text
+Milling About
+```
 
-### Step 4 — Leave It Running
-Keep the Control Panel window open while you work. The system processes submissions automatically every 60 seconds.
+and not:
 
-**End of day:** Click **Stop Background Service**, then close the window.
+```text
+milling about
+MillingAbout
+Milling About!
+```
 
----
-
-## What the Dashboard Shows You
-
-| Page | What It Does |
-|------|-------------|
-| Rubrics | Upload and manage rubrics for each assignment |
-| Submissions | See every student submission and its processing status |
-| System Status | Confirm all connections are working (all should show ✅) |
+Exact matches prevent processing errors.
 
 ---
 
-## The One Rule That Matters Most
+# Step 4 — Students Submit Portfolios
 
-**The Unit Name must match your Google Form exactly.**
-If your form says "Milling About" the rubric must say "Milling About" — not "milling about" or "Milling About!". Capitalization and punctuation matter.
+Students complete the Google Form and submit:
 
----
+* Name
+* Email
+* Unit Name
+* Portfolio URL
 
-## Common Issues
-
-**"Configuration Issues" on the dashboard**
-→ Check System Status page — it will show exactly which connection is failing
-
-**Nothing is processing**
-→ Cloud: Check that your Render background worker is running
-→ Local: Make sure the Control Panel shows Background Service 🟢 Running
-
-**Rubric upload failed**
-→ Make sure the PDF has clear section titles and point values
-→ Try re-exporting the PDF from its original source
-
-**Student didn't receive feedback**
-→ Check the Submissions page — look at the Status column for that student
-→ Verify their portfolio URL is publicly accessible
+Submissions are automatically recorded in Google Sheets.
 
 ---
 
-## Need More Help?
+# Step 5 — Automatic Processing
 
-- **Full setup instructions:** [SETUP_GUIDE.md](SETUP_GUIDE.md)
-- **Technical details:** [README.md](README.md)
-- **What went wrong and how we fixed it:** [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md)
+Once submitted, DPAssist automatically:
+
+1. Detects new submissions
+2. Retrieves the correct rubric
+3. Downloads portfolio content
+4. Evaluates the portfolio using Gemini AI
+5. Generates feedback
+6. Sends feedback email to the student
+7. Updates submission status
+
+No teacher action is required.
+
+---
+
+# Monitoring Progress
+
+Open the **Submissions** page to monitor activity.
+
+The dashboard displays:
+
+* Student name
+* Submission date
+* Unit name
+* Due date
+* Processing status
+
+Common statuses include:
+
+| Status                         | Meaning                                  |
+| ------------------------------ | ---------------------------------------- |
+| Feedback sent                  | Student feedback email delivered         |
+| Teacher draft created          | Draft created for teacher review         |
+| Portfolio access issue emailed | Student must correct sharing permissions |
+| Pending                        | Waiting to be processed                  |
+
+---
+
+# System Status
+
+Open **System Status** to verify connections.
+
+All items should display a green check mark.
+
+Expected services:
+
+* Google Sheets
+* Gemini API
+* Gmail
+* Credentials
+
+---
+
+# Typical Teacher Workflow
+
+### Beginning of Unit
+
+1. Create rubric
+2. Upload rubric
+3. Verify due date
+
+### During Unit
+
+1. Monitor submissions page
+2. Review any access issues
+
+### After Due Date
+
+1. Review generated feedback
+2. Make any desired instructional adjustments
+3. Release final grades
+
+---
+
+# Common Issues
+
+## Submission Not Processing
+
+Check:
+
+* Unit name matches rubric exactly
+* Background worker is running
+* Submission appears in Google Sheets
+
+---
+
+## Portfolio Access Issue
+
+Students must ensure:
+
+* Portfolio is published
+* Portfolio link is accessible without login
+
+---
+
+## Rubric Not Found
+
+Verify:
+
+* Rubric exists
+* Unit name matches exactly
+* Due date is correctly configured
+
+---
+
+# What DPAssist Does Not Do
+
+DPAssist assists the evaluation process but does not replace teacher judgment.
+
+Teachers remain responsible for:
+
+* Reviewing student work
+* Assigning final grades
+* Making instructional decisions
+* Communicating with students and families
+
+---
+
+# Need Additional Help?
+
+See:
+
+* README.md
+* ARCHITECTURE.md
+* CLOUD_DEPLOY.md
+
+for additional documentation and deployment details.
