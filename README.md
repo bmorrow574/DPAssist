@@ -9,6 +9,12 @@
 🌐 **Teacher Dashboard**
 https://dpassist-edu.streamlit.app
 
+### Dashboard Preview
+
+| Teacher Dashboard | Submissions Dashboard |
+|------------------|----------------------|
+| ![Teacher Dashboard](images/Teacher_dashboard.png) | ![Submissions Dashboard](images/Submissions_dashboard.png) |
+
 📖 **Teacher Setup Guide**
 https://bmorrow574.github.io/DPAssist/portfolio_reviewer/DPAssist_Teacher_Setup.html
 
