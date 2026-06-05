@@ -385,9 +385,11 @@ class GoogleSheetsClient:
     def _get_or_create_rubrics_sheet(self):
         """Return the rubrics worksheet, creating it with headers if needed."""
         spreadsheet = self.client.open_by_key(config.GOOGLE_SHEET_ID)
+        import gspread
+
         try:
             return spreadsheet.worksheet(self.RUBRIC_SHEET_NAME)
-        except Exception:
+        except gspread.WorksheetNotFound:
             ws = spreadsheet.add_worksheet(title=self.RUBRIC_SHEET_NAME, rows=200, cols=6)
             ws.append_row(['unit_name', 'title', 'due_date', 'rubric_json', 'created'])
             return ws
