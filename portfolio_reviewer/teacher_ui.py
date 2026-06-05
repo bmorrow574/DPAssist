@@ -172,11 +172,17 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
         st.subheader("Latest 20 Submissions")
         
         # Parse and display submissions
+        # Load rubric due dates once so we do not repeatedly call Google Sheets
+        rubric_lookup = {}
+        for unit_info in rubric_manager.list_units():
+            rubric_lookup[unit_info['unit_name'].strip().lower()] = unit_info
+
+        # Parse and display submissions
         display_data = []
         for record in submissions[-20:]:  # Last 20
             parsed = GoogleSheetsClient.parse_submission(record) or {}
 
-            # Fallback email lookup: scan raw record values for something that
+            # Fallback email lookup
             # looks like a real email address — works regardless of header name.
             email = parsed.get('email')
             if not email or not _EMAIL_RE.match(str(email)):
@@ -189,10 +195,17 @@ def render_submissions_monitor(sheets_client: GoogleSheetsClient, rubric_manager
             if email and '@' not in str(email):
                 email = None
 
-            # Get rubric info
+            # Get rubric info from the cached lookup instead of repeatedly calling Google Sheets
             unit = parsed.get('unit', 'Unknown')
-            due_date = rubric_manager.get_due_date(unit)
-            is_past_due = rubric_manager.is_past_due(unit)
+            unit_info = rubric_lookup.get(str(unit).strip().lower())
+
+            due_date_str = unit_info.get('due_date') if unit_info else None
+            try:
+                due_date = datetime.strptime(due_date_str, '%Y-%m-%d') if due_date_str else None
+            except Exception:
+                due_date = None
+
+            is_past_due = datetime.now() > due_date if due_date else False
 
             display_data.append({
                 'Student': parsed.get('student_name', 'Unknown'),
