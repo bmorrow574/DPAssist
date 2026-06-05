@@ -15,11 +15,9 @@ https://dpassist-edu.streamlit.app
 |------------------|----------------------|
 | ![Teacher Dashboard](images/Teacher_dashboard.png) | ![Submissions Dashboard](images/Submissions_dashboard.png) |
 
-📖 **Teacher Setup Guide**
-https://bmorrow574.github.io/DPAssist/portfolio_reviewer/DPAssist_Teacher_Setup.html
+📖 **[Open Teacher Setup Guide](https://bmorrow574.github.io/DPAssist/portfolio_reviewer/DPAssist_Teacher_Setup.html)**
 
-🎥 **Demo Video**
-https://youtu.be/u0C-5i633i0
+🎥 **[Watch Summary Video](https://youtu.be/u0C-5i633i0)**
 
 The cloud-hosted version of DPAssist is currently deployed and processing real student portfolio submissions.
 
