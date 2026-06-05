@@ -79,6 +79,81 @@ class EmailService:
             print(f"Error sending feedback email to {student_email}: {e}")
             traceback.print_exc()
             return False
+    def send_access_issue_email(
+        self,
+        student_email: str,
+        student_name: str,
+        unit: str,
+        portfolio_url: str,
+        access_error_message: str = "",
+    ) -> bool:
+        """
+        Send a clear email when a submitted portfolio cannot be accessed publicly.
+        """
+        try:
+            subject = f"Portfolio Access Issue: {unit}"
+
+            message = access_error_message or (
+                "Your portfolio could not be reviewed because the submitted link "
+                "requires a Google sign-in."
+            )
+
+            body_html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <h2>Portfolio Access Issue</h2>
+
+    <p>Dear {student_name},</p>
+
+    <p>DPAssist could not review your portfolio for <strong>{unit}</strong> because the submitted link is not publicly accessible.</p>
+
+    <p><strong>What happened:</strong><br>
+    {message}</p>
+
+    <p><strong>Submitted link:</strong><br>
+    <a href="{portfolio_url}">{portfolio_url}</a></p>
+
+    <p><strong>What you need to do:</strong></p>
+    <ol>
+        <li>Open your Google Site.</li>
+        <li>Click <strong>Publish</strong>.</li>
+        <li>Make sure the published site can be viewed by people outside your school account.</li>
+        <li>Open the link in an incognito/private browser window to confirm that it does not ask you to sign in.</li>
+        <li>Resubmit the public portfolio link through the Google Form.</li>
+    </ol>
+
+    <p>If the site still asks for a Google sign-in, it is not public yet.</p>
+
+    <p>Thank you,<br>
+    {config.TEACHER_EMAIL}</p>
+</body>
+</html>
+"""
+
+            msg = EmailMessage()
+            msg["From"] = config.TEACHER_EMAIL
+            msg["To"] = student_email
+            msg["Subject"] = subject
+            msg.set_content(body_html, subtype="html")
+
+            with smtplib.SMTP_SSL(
+                self.SMTP_HOST,
+                self.SMTP_PORT,
+                local_hostname="localhost"
+            ) as smtp:
+                smtp.login(config.TEACHER_EMAIL, config.GMAIL_APP_PASSWORD)
+                smtp.send_message(msg)
+
+            print(f"✓ Portfolio access issue email sent to {student_email}")
+            return True
+
+        except Exception as e:
+            print(f"Error sending portfolio access issue email to {student_email}: {e}")
+            traceback.print_exc()
+            return False
 
     # ------------------------------------------------------------------
     # Private helpers

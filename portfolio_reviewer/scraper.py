@@ -33,7 +33,34 @@ class PortfolioScraper:
         try:
             response = self.session.get(url, timeout=30)
             response.raise_for_status()
-            
+
+            # Detect private/restricted Google Sites pages before evaluation.
+            # If Google redirects to a sign-in page, the portfolio is not publicly accessible.
+            final_url = response.url.lower()
+            page_text = response.text.lower()
+
+            if (
+                "accounts.google.com" in final_url
+                or "signin" in final_url
+                or "use your google account" in page_text
+                or "sign in" in page_text and "google account" in page_text
+            ):
+                return {
+                    "url": url,
+                    "platform": "restricted",
+                    "text": "",
+                    "images": [],
+                    "links": [],
+                    "structure": [],
+                    "access_error": True,
+                    "access_error_type": "google_sign_in_required",
+                    "access_error_message": (
+                        "This portfolio could not be reviewed because the submitted Google Sites "
+                        "link requires a Google sign-in. The student needs to publish the site or "
+                        "page so anyone with the link can view it, then resubmit."
+                    )
+                }
+
             soup = BeautifulSoup(response.content, 'html.parser')
             
             # Detect platform

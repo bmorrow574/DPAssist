@@ -226,12 +226,38 @@ class BackgroundService:
             portfolio_url = submission.get('portfolio_url', '')
             print(f"  Scraping portfolio...")
             portfolio_content = self.scraper.scrape(portfolio_url)
-            
+
             if not portfolio_content:
                 print(f"  ! Failed to scrape portfolio")
                 self.sheets_client.update_status(row_number, "Scraping failed")
                 return False
-            
+
+            # If the portfolio requires Google sign-in, stop before AI evaluation
+            # and notify the student that the site/page must be publicly published.
+            if portfolio_content.get("access_error"):
+                print(f"  ! Portfolio access issue: {portfolio_content.get('access_error_type')}")
+                student_email = submission.get('email', '')
+                student_name = submission.get('student_name', 'Student')
+
+                success = self.email_service.send_access_issue_email(
+                    student_email=student_email,
+                    student_name=student_name,
+                    unit=unit,
+                    portfolio_url=portfolio_url,
+                    access_error_message=portfolio_content.get("access_error_message", "")
+                )
+
+                if success:
+                    self.sheets_client.update_status(row_number, "Portfolio access issue emailed")
+                    self.sheets_client.update_feedback_sent(row_number, datetime.now().isoformat())
+                    self.sheets_client.update_last_processed(row_number, datetime.now().isoformat())
+                    print(f"  ✓ Portfolio access issue email sent to {student_email}")
+                    return True
+
+                print(f"  ! Failed to send portfolio access issue email")
+                self.sheets_client.update_status(row_number, "Portfolio access issue")
+                return False
+
             print(f"  Scraped {len(portfolio_content.get('text', ''))} characters")
             
             # Evaluate with AI
