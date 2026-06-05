@@ -3,641 +3,567 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DPAssist — Teacher Setup Guide</title>
+<title>DPAssist - Teacher Setup Guide</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap');
+  :root {
+    --blue: #1a56db;
+    --blue-soft: #e8f0fe;
+    --ink: #1f2937;
+    --muted: #5f6368;
+    --line: #e5e7eb;
+    --paper: #f8f7f4;
+    --card: #ffffff;
+    --green: #0f766e;
+    --green-soft: #ecfdf5;
+    --amber: #92400e;
+    --amber-soft: #fff7ed;
+    --red: #991b1b;
+    --red-soft: #fef2f2;
+  }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
-    background: #f8f7f4;
-    color: #1a1a1a;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.65;
     font-size: 15px;
-    line-height: 1.7;
   }
 
   .page {
-    max-width: 780px;
+    max-width: 920px;
     margin: 0 auto;
-    padding: 48px 32px 80px;
+    padding: 42px 28px 80px;
   }
 
-  .cover {
+  header {
     text-align: center;
-    padding: 48px 0 40px;
-    border-bottom: 1px solid #e0ddd6;
-    margin-bottom: 48px;
+    padding: 46px 20px 42px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    margin-bottom: 32px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
   }
 
-  .cover-tag {
+  .eyebrow {
     display: inline-block;
-    background: #e8f0fe;
-    color: #1a56db;
-    font-size: 11px;
-    letter-spacing: 0.1em;
+    background: var(--blue-soft);
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    font-weight: 500;
-    padding: 4px 14px;
+    padding: 5px 14px;
     border-radius: 999px;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
   }
 
-  .cover h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 42px;
-    color: #1a1a1a;
-    margin-bottom: 10px;
-    line-height: 1.1;
+  h1 {
+    margin: 0 0 10px;
+    font-size: 44px;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
   }
 
-  .cover p {
-    font-size: 16px;
-    color: #5a5a5a;
-    max-width: 500px;
-    margin: 0 auto 24px;
-    font-weight: 300;
+  header p {
+    max-width: 670px;
+    margin: 0 auto 22px;
+    color: var(--muted);
+    font-size: 17px;
   }
 
-  .time-estimate {
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .chip {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
     background: #fff;
-    border: 1px solid #e0ddd6;
+    border: 1px solid var(--line);
     border-radius: 999px;
-    padding: 8px 20px;
+    padding: 8px 14px;
     font-size: 13px;
-    color: #5a5a5a;
+    color: var(--muted);
   }
 
-  .time-estimate .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #1a56db;
+  nav {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 30px;
+  }
+
+  nav h2 {
+    margin: 0 0 12px;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
 
   .toc {
-    background: #fff;
-    border: 1px solid #e0ddd6;
-    border-radius: 12px;
-    padding: 24px 28px;
-    margin-bottom: 48px;
-  }
-
-  .toc-title {
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #888;
-    font-weight: 500;
-    margin-bottom: 14px;
-  }
-
-  .toc-list {
-    list-style: none;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .toc-list li a {
-    font-size: 13px;
-    color: #1a56db;
-    text-decoration: none;
+  .toc a {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    gap: 10px;
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
   }
 
-  .toc-list li a:hover { text-decoration: underline; }
+  .toc a:hover { text-decoration: underline; }
 
   .toc-num {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #e8f0fe;
-    color: #1a56db;
-    font-size: 11px;
-    font-weight: 500;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--blue-soft);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    flex: 0 0 auto;
+    font-size: 12px;
+    color: var(--blue);
   }
 
-  .section {
-    margin-bottom: 56px;
+  section {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 22px;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
   }
 
-  .section-header {
+  .section-title {
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 20px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #e0ddd6;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 15px;
+    margin-bottom: 18px;
   }
 
-  .step-badge {
+  .badge {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
-    background: #1a56db;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .section-header h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 24px;
-    color: #1a1a1a;
-    font-weight: 400;
-  }
-
-  .section-header .time-pill {
-    margin-left: auto;
-    font-size: 11px;
-    color: #888;
-    background: #f0ede8;
-    padding: 3px 10px;
     border-radius: 999px;
-    white-space: nowrap;
-  }
-
-  .intro-text {
-    font-size: 14px;
-    color: #5a5a5a;
-    margin-bottom: 20px;
-    font-weight: 300;
-  }
-
-  .steps {
-    counter-reset: step;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .step {
-    display: flex;
-    gap: 16px;
-    padding: 16px 0;
-    border-bottom: 1px solid #f0ede8;
-  }
-
-  .step:last-child { border-bottom: none; }
-
-  .step-num {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 1.5px solid #1a56db;
-    color: #1a56db;
-    font-size: 12px;
-    font-weight: 500;
-    display: flex;
+    background: var(--blue);
+    color: #fff;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    margin-top: 2px;
+    font-weight: 700;
+    flex: 0 0 auto;
   }
 
-  .step-content { flex: 1; }
-
-  .step-title {
-    font-size: 14px;
-    font-weight: 500;
-    color: #1a1a1a;
-    margin-bottom: 4px;
+  h2 {
+    margin: 0;
+    font-size: 25px;
+    line-height: 1.2;
   }
 
-  .step-desc {
-    font-size: 13px;
-    color: #5a5a5a;
-    line-height: 1.6;
+  h3 {
+    margin: 22px 0 8px;
+    font-size: 18px;
   }
 
-  .step-desc a {
-    color: #1a56db;
-    text-decoration: none;
-  }
+  p { margin: 0 0 12px; }
 
-  .step-desc a:hover { text-decoration: underline; }
+  ul, ol { margin-top: 10px; margin-bottom: 14px; }
+  li { margin: 6px 0; }
+
+  a { color: var(--blue); }
 
   .callout {
-    border-radius: 8px;
-    padding: 14px 18px;
-    margin: 16px 0;
-    font-size: 13px;
-    line-height: 1.6;
-  }
-
-  .callout.tip {
-    background: #e8f0fe;
-    border-left: 3px solid #1a56db;
+    border-left: 4px solid var(--blue);
+    background: var(--blue-soft);
     color: #1e40af;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin: 16px 0;
   }
 
   .callout.warning {
-    background: #fff8e6;
-    border-left: 3px solid #f59e0b;
-    color: #92400e;
+    border-left-color: #f59e0b;
+    background: var(--amber-soft);
+    color: var(--amber);
   }
 
   .callout.success {
-    background: #ecfdf5;
-    border-left: 3px solid #10b981;
-    color: #065f46;
+    border-left-color: #10b981;
+    background: var(--green-soft);
+    color: var(--green);
   }
 
-  .callout strong { font-weight: 500; }
-
-  .code-block {
-    background: #1a1a2e;
-    border-radius: 8px;
-    padding: 16px 20px;
-    margin: 12px 0;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    color: #e2e8f0;
-    line-height: 1.8;
-    overflow-x: auto;
+  .callout.danger {
+    border-left-color: #ef4444;
+    background: var(--red-soft);
+    color: var(--red);
   }
 
-  .code-block .key { color: #93c5fd; }
-  .code-block .val { color: #86efac; }
-  .code-block .comment { color: #6b7280; }
-
-  .url-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #e8f0fe;
-    color: #1a56db;
-    font-size: 13px;
-    padding: 5px 12px;
-    border-radius: 6px;
-    font-family: 'Courier New', monospace;
-    margin: 4px 0;
-  }
-
-  .checklist {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin: 16px 0;
-  }
-
-  .checklist li {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: 13px;
-    color: #3a3a3a;
-    line-height: 1.5;
-  }
-
-  .check-box {
-    width: 18px;
-    height: 18px;
-    border: 1.5px solid #d0ccc6;
-    border-radius: 4px;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .visual-box {
-    background: #fff;
-    border: 1px solid #e0ddd6;
-    border-radius: 10px;
-    padding: 20px;
-    margin: 16px 0;
-  }
-
-  .visual-box-title {
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #888;
-    font-weight: 500;
-    margin-bottom: 14px;
-  }
-
-  .mock-field {
-    background: #f8f7f4;
-    border: 1px solid #e0ddd6;
-    border-radius: 6px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: #5a5a5a;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .mock-field .label { color: #888; font-size: 12px; }
-  .mock-field .value { font-weight: 500; color: #1a1a1a; }
-
-  .mock-button {
-    display: inline-block;
-    background: #1a56db;
-    color: #fff;
-    border-radius: 6px;
-    padding: 8px 20px;
-    font-size: 13px;
-    font-weight: 500;
-    margin-top: 8px;
-  }
-
-  .divider {
-    border: none;
-    border-top: 1px solid #e0ddd6;
-    margin: 40px 0;
-  }
-
-  .final-box {
-    background: #1a56db;
-    border-radius: 12px;
-    padding: 32px;
-    text-align: center;
-    color: #fff;
-    margin-top: 48px;
-  }
-
-  .final-box h3 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 26px;
-    margin-bottom: 10px;
-    font-weight: 400;
-  }
-
-  .final-box p {
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 18px;
     font-size: 14px;
-    opacity: 0.85;
-    margin-bottom: 20px;
-    font-weight: 300;
   }
 
-  .final-url {
-    display: inline-block;
-    background: #fff;
-    color: #1a56db;
-    font-size: 16px;
-    font-weight: 500;
-    padding: 10px 28px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-family: 'Courier New', monospace;
+  th, td {
+    border: 1px solid var(--line);
+    padding: 9px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: #f3f4f6;
+    font-weight: 700;
+  }
+
+  code, pre {
+    font-family: Consolas, Monaco, 'Courier New', monospace;
+  }
+
+  code {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    padding: 2px 5px;
+    border-radius: 5px;
+    font-size: 90%;
+  }
+
+  pre {
+    background: #111827;
+    color: #e5e7eb;
+    padding: 16px 18px;
+    border-radius: 12px;
+    overflow-x: auto;
+    line-height: 1.55;
+    font-size: 13px;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .mini-card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    background: #fafafa;
+  }
+
+  .mini-card h3 { margin-top: 0; }
+
+  .footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 36px;
+  }
+
+  @media (max-width: 720px) {
+    h1 { font-size: 34px; }
+    .toc, .two-col { grid-template-columns: 1fr; }
+    .page { padding: 24px 16px 60px; }
+    section { padding: 22px; }
   }
 
   @media print {
-    body { background: #fff; }
-    .page { padding: 24px; }
-    .callout, .visual-box, .code-block { break-inside: avoid; }
-    .section { break-inside: avoid; }
+    body { background: #fff; font-size: 12px; }
+    .page { max-width: none; padding: 0; }
+    header, nav, section { box-shadow: none; border-radius: 0; page-break-inside: avoid; }
+    section { page-break-inside: avoid; }
+    a { color: #000; text-decoration: none; }
+    .toc { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 <div class="page">
 
-  <div class="cover">
-    <div class="cover-tag">Cloud Setup Guide</div>
-    <h1>DPAssist for Teachers</h1>
-    <p>How to set up your own automated portfolio feedback system — no coding required.</p>
-    <div class="time-estimate">
-      <div class="dot"></div>
-      One-time setup — about 60 minutes
-    </div>
+<header>
+  <div class="eyebrow">Cloud Teacher Setup Guide</div>
+  <h1>DPAssist for Teachers</h1>
+  <p>Set up a cloud-based portfolio feedback system using Google Forms, Google Sheets, Streamlit Cloud, Render, Gmail, and Gemini.</p>
+  <div class="chips">
+    <span class="chip">No local Python required</span>
+    <span class="chip">Cloud dashboard</span>
+    <span class="chip">24/7 background worker</span>
+    <span class="chip">Teacher keeps final control</span>
   </div>
+</header>
 
-  <div class="toc">
-    <div class="toc-title">What you will set up</div>
-    <ul class="toc-list">
-      <li><a href="#s1"><span class="toc-num">1</span> Google Cloud Project</a></li>
-      <li><a href="#s2"><span class="toc-num">2</span> Google Sheets API</a></li>
-      <li><a href="#s3"><span class="toc-num">3</span> Service Account</a></li>
-      <li><a href="#s4"><span class="toc-num">4</span> Share your Google Sheet</a></li>
-      <li><a href="#s5"><span class="toc-num">5</span> Gmail App Password</a></li>
-      <li><a href="#s6"><span class="toc-num">6</span> Gemini API Key</a></li>
-      <li><a href="#s7"><span class="toc-num">7</span> Deploy to Streamlit</a></li>
-      <li><a href="#s8"><span class="toc-num">8</span> Daily use</a></li>
-    </ul>
-  </div>
+<nav>
+  <h2>Setup Checklist</h2>
+  <ul class="toc">
+    <li><a href="#overview"><span class="toc-num">1</span>What you are setting up</a></li>
+    <li><a href="#form"><span class="toc-num">2</span>Prepare Google Form and Sheet</a></li>
+    <li><a href="#cloud"><span class="toc-num">3</span>Google Cloud and service account</a></li>
+    <li><a href="#gmail"><span class="toc-num">4</span>Gmail App Password</a></li>
+    <li><a href="#gemini"><span class="toc-num">5</span>Gemini API key</a></li>
+    <li><a href="#streamlit"><span class="toc-num">6</span>Deploy Streamlit dashboard</a></li>
+    <li><a href="#render"><span class="toc-num">7</span>Deploy Render worker</a></li>
+    <li><a href="#daily"><span class="toc-num">8</span>Daily use and troubleshooting</a></li>
+  </ul>
+</nav>
 
-  <div class="callout tip">
-    <strong>Before you begin:</strong> You will need a Gmail account, a Google Form already collecting student portfolio submissions, and the Google Sheet linked to that form. Have these ready before starting.
-  </div>
+<section id="overview">
+  <div class="section-title"><span class="badge">1</span><h2>What You Are Setting Up</h2></div>
+  <p>DPAssist has two cloud services that work together:</p>
+  <table>
+    <thead><tr><th>Service</th><th>Platform</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Teacher Dashboard</td><td>Streamlit Cloud</td><td>Upload rubrics, view submissions, and check system status.</td></tr>
+      <tr><td>Background Worker</td><td>Render Starter Worker</td><td>Checks Google Sheets every 60 seconds, evaluates portfolios, sends emails, and updates statuses.</td></tr>
+      <tr><td>Data Store</td><td>Google Sheets</td><td>Stores student submissions, rubric data, and processing status.</td></tr>
+      <tr><td>AI Evaluation</td><td>Google Gemini</td><td>Evaluates portfolio evidence against teacher rubrics.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warning"><strong>Important:</strong> Streamlit Cloud is the dashboard only. The Render background worker is required for automatic processing. If only the dashboard is deployed, submissions will appear in Google Sheets but will not be evaluated automatically.</div>
+  <p>Current production deployment has been verified with real student submissions using the Streamlit dashboard and Render worker.</p>
+</section>
 
-  <div class="section" id="s1">
-    <div class="section-header">
-      <div class="step-badge">1</div>
-      <h2>Create a Google Cloud Project</h2>
-      <span class="time-pill">~10 min</span>
-    </div>
-    <p class="intro-text">Google Cloud is where you give DPAssist permission to read your Google Sheet. Think of it as creating a key that only your app can use.</p>
-    <ol class="steps">
-      <li class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Go to Google Cloud Console</div><div class="step-desc">Open your browser and go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a>. Sign in with your Google account.</div></div></li>
-      <li class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Create a new project</div><div class="step-desc">At the top of the page, click where it says "Select a project". Then click "New Project" in the top right of the popup.</div></div></li>
-      <li class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Name your project</div><div class="step-desc">Type <strong>DPAssist</strong> as the project name and click "Create". Wait a few seconds for it to be created.</div></div></li>
-      <li class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Make sure your project is selected</div><div class="step-desc">At the top of the page, confirm "DPAssist" is showing as the selected project.</div></div></li>
-    </ol>
-  </div>
+<section id="form">
+  <div class="section-title"><span class="badge">2</span><h2>Prepare the Google Form and Sheet</h2></div>
+  <p>Students submit portfolio links through a Google Form. Google Forms automatically records each submission in a connected Google Sheet.</p>
+  <h3>Required form information</h3>
+  <ul>
+    <li>Student first name</li>
+    <li>Student last name</li>
+    <li>Student email address</li>
+    <li>Class section, if applicable</li>
+    <li>Unit name</li>
+    <li>Published portfolio URL</li>
+  </ul>
+  <h3>Required Google Sheet columns</h3>
+  <p>DPAssist is designed to work with Google Form response sheets that include these fields:</p>
+  <ul>
+    <li><code>Timestamp</code></li>
+    <li><code>What is your class section?</code></li>
+    <li><code>What is your last name?</code></li>
+    <li><code>What is your first name?</code></li>
+    <li><code>Select the unit</code></li>
+    <li>A portfolio URL column with <code>PUBLISHED</code> in the column name</li>
+    <li><code>What is your email address?</code></li>
+  </ul>
+  <p>DPAssist automatically adds status-tracking columns if they do not already exist.</p>
+  <div class="callout"><strong>Unit names matter:</strong> The unit name in the rubric must match the unit name in the Google Form exactly. For example, <code>Milling About</code> is different from <code>milling about</code> or <code>Milling About!</code>.</div>
+</section>
 
-  <div class="section" id="s2">
-    <div class="section-header">
-      <div class="step-badge">2</div>
-      <h2>Enable the Google Sheets API</h2>
-      <span class="time-pill">~3 min</span>
-    </div>
-    <p class="intro-text">This gives your project permission to read and write to Google Sheets.</p>
-    <ol class="steps">
-      <li class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Open the API Library</div><div class="step-desc">In the left menu, click "APIs &amp; Services" then "Library".</div></div></li>
-      <li class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Enable Google Sheets API</div><div class="step-desc">Search for "Google Sheets API", click on it, then click the blue "Enable" button.</div></div></li>
-      <li class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Enable Google Drive API</div><div class="step-desc">Go back to the Library, search for "Google Drive API", click it, and click "Enable".</div></div></li>
-    </ol>
-  </div>
+<section id="cloud">
+  <div class="section-title"><span class="badge">3</span><h2>Create Google Cloud Credentials</h2></div>
+  <p>DPAssist needs secure access to the Google Sheet connected to your form.</p>
+  <h3>Create a Google Cloud project</h3>
+  <ol>
+    <li>Go to <a href="https://console.cloud.google.com" target="_blank">https://console.cloud.google.com</a>.</li>
+    <li>Sign in with your Google account.</li>
+    <li>Create a new project named <strong>DPAssist</strong>.</li>
+    <li>Make sure the DPAssist project is selected.</li>
+  </ol>
+  <h3>Enable APIs</h3>
+  <ol>
+    <li>Open <strong>APIs &amp; Services</strong> &gt; <strong>Library</strong>.</li>
+    <li>Enable <strong>Google Sheets API</strong>.</li>
+    <li>Enable <strong>Google Drive API</strong>.</li>
+  </ol>
+  <h3>Create a service account</h3>
+  <ol>
+    <li>Open <strong>APIs &amp; Services</strong> &gt; <strong>Credentials</strong>.</li>
+    <li>Choose <strong>Create Credentials</strong> &gt; <strong>Service Account</strong>.</li>
+    <li>Name it <strong>dpassist-reader</strong>.</li>
+    <li>Skip optional role steps and finish creating the account.</li>
+    <li>Open the service account, go to <strong>Keys</strong>, and create a new <strong>JSON</strong> key.</li>
+    <li>Save the downloaded JSON file securely.</li>
+  </ol>
+  <div class="callout danger"><strong>Do not upload the JSON file to GitHub.</strong> It contains private credentials. You will paste its contents into Streamlit Secrets and Render environment variables later.</div>
+  <h3>Share the Google Sheet</h3>
+  <ol>
+    <li>Open the downloaded JSON file in a text editor.</li>
+    <li>Find the <code>client_email</code> value.</li>
+    <li>Open your Google Form responses Sheet.</li>
+    <li>Click <strong>Share</strong>.</li>
+    <li>Add the service account email as an <strong>Editor</strong>.</li>
+    <li>Uncheck <strong>Notify people</strong> and click <strong>Share</strong>.</li>
+  </ol>
+  <h3>Copy the Sheet ID</h3>
+  <p>The Sheet ID is the long string between <code>/d/</code> and <code>/edit</code> in the Google Sheet URL.</p>
+  <pre>https://docs.google.com/spreadsheets/d/THIS_PART_IS_THE_SHEET_ID/edit</pre>
+</section>
 
-  <div class="section" id="s3">
-    <div class="section-header">
-      <div class="step-badge">3</div>
-      <h2>Create a Service Account</h2>
-      <span class="time-pill">~10 min</span>
-    </div>
-    <p class="intro-text">A service account is like a robot assistant that has its own email address and can be given permission to access your sheet. DPAssist uses this to read your student submissions.</p>
-    <ol class="steps">
-      <li class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Go to Credentials</div><div class="step-desc">In the left menu, click "APIs &amp; Services" then "Credentials".</div></div></li>
-      <li class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Create a Service Account</div><div class="step-desc">Click "+ Create Credentials" at the top, then choose "Service Account".</div></div></li>
-      <li class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Name it</div><div class="step-desc">Type <strong>dpassist-reader</strong> as the name. Click "Create and Continue", then skip the optional steps and click "Done".</div></div></li>
-      <li class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Download the credentials file</div><div class="step-desc">Click on the service account you just created. Go to the "Keys" tab. Click "Add Key" → "Create New Key". Choose "JSON" and click "Create". A file will download automatically — keep this file safe, you will need it in Step 7.</div></div></li>
-    </ol>
-    <div class="callout warning">
-      <strong>Important:</strong> The downloaded JSON file contains your private credentials. Never share it with anyone or post it online. Store it somewhere safe on your computer.
-    </div>
-    <div class="callout tip">
-      <strong>Find your service account email:</strong> Open the downloaded JSON file in any text editor (TextEdit on Mac, Notepad on Windows). Look for the line that says "client_email" — copy that email address. It looks like: <em>dpassist-reader@your-project.iam.gserviceaccount.com</em>. You will need this in Step 4.
-    </div>
-  </div>
+<section id="gmail">
+  <div class="section-title"><span class="badge">4</span><h2>Create a Gmail App Password</h2></div>
+  <p>DPAssist sends student feedback emails through Gmail using an App Password, not your normal Google password.</p>
+  <ol>
+    <li>Go to <a href="https://myaccount.google.com" target="_blank">https://myaccount.google.com</a>.</li>
+    <li>Open <strong>Security</strong>.</li>
+    <li>Make sure <strong>2-Step Verification</strong> is turned on.</li>
+    <li>Search for <strong>App passwords</strong>.</li>
+    <li>Create an app password named <strong>DPAssist</strong>.</li>
+    <li>Copy the 16-character password immediately.</li>
+  </ol>
+  <div class="callout warning"><strong>Remove spaces.</strong> Google may display the app password in groups, such as <code>abcd efgh ijkl mnop</code>. When entering it in Streamlit or Render, use <code>abcdefghijklmnop</code> with no spaces.</div>
+</section>
 
-  <div class="section" id="s4">
-    <div class="section-header">
-      <div class="step-badge">4</div>
-      <h2>Share your Google Sheet</h2>
-      <span class="time-pill">~2 min</span>
-    </div>
-    <p class="intro-text">Give your service account access to the Google Sheet where your form responses are collected.</p>
-    <ol class="steps">
-      <li class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Open your Google Sheet</div><div class="step-desc">This is the sheet connected to your Google Form — the one that collects student portfolio submissions.</div></div></li>
-      <li class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Click Share</div><div class="step-desc">Click the "Share" button in the top right corner of the sheet.</div></div></li>
-      <li class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Add the service account</div><div class="step-desc">Paste the service account email address from Step 3 into the "Add people" box. Set permission to "Editor". Uncheck "Notify people" and click "Share".</div></div></li>
-    </ol>
-    <div class="visual-box">
-      <div class="visual-box-title">What this looks like</div>
-      <div class="mock-field"><span class="label">Add people</span><span class="value">dpassist-reader@your-project.iam.gserviceaccount.com</span></div>
-      <div class="mock-field"><span class="label">Permission</span><span class="value">Editor</span></div>
-      <div class="mock-field"><span class="label">Notify people</span><span class="value">Unchecked ✓</span></div>
-      <div class="mock-button">Share</div>
-    </div>
-    <div class="callout tip">
-      <strong>Find your Sheet ID:</strong> Look at the web address of your Google Sheet. It looks like: <br><br>
-      <span class="url-chip">https://docs.google.com/spreadsheets/d/<strong>THIS-PART-IS-YOUR-ID</strong>/edit</span><br><br>
-      Copy just the long string of letters and numbers between /d/ and /edit. Save it — you will need it in Step 7.
-    </div>
-  </div>
+<section id="gemini">
+  <div class="section-title"><span class="badge">5</span><h2>Create a Gemini API Key</h2></div>
+  <ol>
+    <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank">https://aistudio.google.com/app/apikey</a>.</li>
+    <li>Sign in with your Google account.</li>
+    <li>Click <strong>Create API Key</strong>.</li>
+    <li>Copy the key and store it securely.</li>
+  </ol>
+  <p>The key is used by DPAssist to evaluate portfolios and parse rubric content.</p>
+</section>
 
-  <div class="section" id="s5">
-    <div class="section-header">
-      <div class="step-badge">5</div>
-      <h2>Create a Gmail App Password</h2>
-      <span class="time-pill">~5 min</span>
-    </div>
-    <p class="intro-text">DPAssist sends feedback emails to students using your Gmail. An App Password is a special one-time password that lets it do this safely — without sharing your real password.</p>
-    <ol class="steps">
-      <li class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Go to your Google Account</div><div class="step-desc">Go to <a href="https://myaccount.google.com" target="_blank">myaccount.google.com</a> and click "Security" in the left menu.</div></div></li>
-      <li class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Turn on 2-Step Verification</div><div class="step-desc">Under "How you sign in to Google", click "2-Step Verification" and make sure it is turned on. App Passwords require this to be active.</div></div></li>
-      <li class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Find App Passwords</div><div class="step-desc">Search for "App passwords" in the search bar at the top of your Google Account page. Click on it when it appears.</div></div></li>
-      <li class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Create the password</div><div class="step-desc">In the "App name" box, type <strong>DPAssist</strong> and click "Create".</div></div></li>
-      <li class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Copy your password</div><div class="step-desc">Google will show you a 16-character password. Copy it and save it somewhere safe — Google will never show it again. Remove any spaces before saving it.</div></div></li>
-    </ol>
-    <div class="callout warning">
-      <strong>Save it now:</strong> Google shows this password only once. Copy it immediately and save it before closing the window.
-    </div>
-  </div>
+<section id="streamlit">
+  <div class="section-title"><span class="badge">6</span><h2>Deploy the Streamlit Teacher Dashboard</h2></div>
+  <p>The Streamlit app is the teacher-facing dashboard. It lets teachers upload rubrics, view submissions, and confirm system configuration.</p>
+  <ol>
+    <li>Go to <a href="https://share.streamlit.io" target="_blank">https://share.streamlit.io</a> and sign in with GitHub.</li>
+    <li>Create a new app.</li>
+    <li>Select repository <code>bmorrow574/DPAssist</code> or your fork.</li>
+    <li>Set branch to <code>main</code>.</li>
+    <li>Set main file path to <code>portfolio_reviewer/teacher_ui.py</code>.</li>
+    <li>Open <strong>Advanced settings</strong> &gt; <strong>Secrets</strong>.</li>
+  </ol>
+  <p>Paste the following secrets, replacing placeholder values with your real values:</p>
+  <pre>GOOGLE_SHEET_ID = "paste-your-sheet-id-here"
+GEMINI_API_KEY = "paste-your-gemini-key-here"
+TEACHER_EMAIL = "your.email@gmail.com"
+GMAIL_APP_PASSWORD = "your16characterapppassword"
+RUBRIC_STORAGE = "sheets"
+CHECK_INTERVAL_SECONDS = "60"
+GOOGLE_CREDENTIALS_JSON = '''
+paste the entire contents of service-account-credentials.json here
+'''</pre>
+  <div class="callout warning"><strong>Triple quotes are required</strong> around the Google credentials JSON in Streamlit Secrets. Paste the entire JSON file, including the opening <code>{</code> and closing <code>}</code>.</div>
+  <p>Deploy the app. When the dashboard opens, go to <strong>System Status</strong> and confirm the required services show green check marks.</p>
+</section>
 
-  <div class="section" id="s6">
-    <div class="section-header">
-      <div class="step-badge">6</div>
-      <h2>Get a Gemini API Key</h2>
-      <span class="time-pill">~3 min</span>
-    </div>
-    <p class="intro-text">The Gemini API is the AI brain of DPAssist. It reads student portfolios and evaluates them against your rubric. The free tier handles most classroom sizes comfortably.</p>
-    <ol class="steps">
-      <li class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Go to Google AI Studio</div><div class="step-desc">Go to <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a> and sign in with your Google account.</div></div></li>
-      <li class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Create an API Key</div><div class="step-desc">Click "Create API Key". Copy the key that appears — it starts with "AIza" and is about 40 characters long.</div></div></li>
-      <li class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Save it safely</div><div class="step-desc">Save the key somewhere private — treat it like a password.</div></div></li>
-    </ol>
-  </div>
+<section id="render">
+  <div class="section-title"><span class="badge">7</span><h2>Deploy the Render Background Worker</h2></div>
+  <p>The Render worker is what actually processes submissions. It must be deployed for DPAssist to run automatically.</p>
+  <div class="callout"><strong>Cost note:</strong> The working production deployment uses a Render Starter Worker. At the time of deployment, this was $7/month. Render pricing may change.</div>
+  <ol>
+    <li>Go to <a href="https://render.com" target="_blank">https://render.com</a> and sign in with GitHub.</li>
+    <li>Select <strong>New</strong> &gt; <strong>Blueprint</strong>.</li>
+    <li>Connect the GitHub repository.</li>
+    <li>Render should detect <code>render.yaml</code>.</li>
+    <li>Create a Blueprint instance, such as <strong>DPAssist-Production</strong>.</li>
+    <li>Set branch to <code>main</code>.</li>
+    <li>Leave Blueprint path as <code>render.yaml</code>.</li>
+  </ol>
+  <h3>Render environment variables</h3>
+  <p>Enter these values when Render prompts for them:</p>
+  <table>
+    <thead><tr><th>Variable</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td><code>GOOGLE_CREDENTIALS_JSON</code></td><td>Entire contents of the service account JSON file</td></tr>
+      <tr><td><code>GOOGLE_SHEET_ID</code></td><td>Your Google Sheet ID</td></tr>
+      <tr><td><code>GEMINI_API_KEY</code></td><td>Your Gemini API key</td></tr>
+      <tr><td><code>TEACHER_EMAIL</code></td><td>The Gmail address that sends feedback</td></tr>
+      <tr><td><code>GMAIL_APP_PASSWORD</code></td><td>The Gmail App Password with no spaces</td></tr>
+    </tbody>
+  </table>
+  <p>The following values are defined in <code>render.yaml</code>:</p>
+  <pre>RUBRIC_STORAGE=sheets
+CHECK_INTERVAL_SECONDS=60</pre>
+  <p>Deploy the worker. In Render logs, successful startup should show that the service is live and running <code>python portfolio_reviewer/background_service.py</code>. After deployment, the worker checks the Google Sheet every 60 seconds.</p>
+</section>
 
-  <div class="section" id="s7">
-    <div class="section-header">
-      <div class="step-badge">7</div>
-      <h2>Deploy to Streamlit Cloud</h2>
-      <span class="time-pill">~20 min</span>
-    </div>
-    <p class="intro-text">This is the final step — deploying your own copy of DPAssist to the cloud so any teacher at your school can use it from a browser.</p>
-    <ol class="steps">
-      <li class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Fork the GitHub repository</div><div class="step-desc">Go to <a href="https://github.com/bmorrow574/DPAssist" target="_blank">github.com/bmorrow574/DPAssist</a>. Click the "Fork" button in the top right. This creates your own copy of the code.</div></div></li>
-      <li class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Go to Streamlit Cloud</div><div class="step-desc">Go to <a href="https://share.streamlit.io" target="_blank">share.streamlit.io</a> and sign in with your GitHub account.</div></div></li>
-      <li class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Create a new app</div><div class="step-desc">Click "New app". Set these fields exactly:<br><br>
-        Repository: <strong>your-github-name/DPAssist</strong><br>
-        Branch: <strong>main</strong><br>
-        Main file path: <strong>portfolio_reviewer/teacher_ui.py</strong>
-      </div></div></li>
-      <li class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Open Advanced Settings → Secrets</div><div class="step-desc">Click "Advanced settings" before deploying. Click "Secrets". This is where you paste all your credentials.</div></div></li>
-      <li class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Paste your secrets</div><div class="step-desc">Type the following exactly — replacing each value with your own. Type the apostrophes manually on your keyboard.</div></div></li>
-    </ol>
+<section id="daily">
+  <div class="section-title"><span class="badge">8</span><h2>Daily Use</h2></div>
+  <h3>Add a rubric</h3>
+  <ol>
+    <li>Open the Streamlit Teacher Dashboard.</li>
+    <li>Click <strong>Rubrics</strong>.</li>
+    <li>Upload the rubric PDF.</li>
+    <li>Enter the unit name exactly as it appears in the Google Form.</li>
+    <li>Set the due date.</li>
+    <li>Click <strong>Parse and Add Rubric</strong>.</li>
+  </ol>
+  <h3>Monitor submissions</h3>
+  <p>Open <strong>Submissions</strong> to view student names, units, due dates, and status.</p>
+  <table>
+    <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>Feedback sent</td><td>Student feedback email was sent successfully.</td></tr>
+      <tr><td>Teacher draft created</td><td>A teacher-facing draft/review message was created for a late submission.</td></tr>
+      <tr><td>Portfolio access issue emailed</td><td>The student's portfolio requires sign-in or is not publicly accessible.</td></tr>
+      <tr><td>Processing</td><td>The worker is actively evaluating the submission.</td></tr>
+    </tbody>
+  </table>
+  <h3>Student portfolio access</h3>
+  <p>Students must publish portfolio links so they are accessible without Google sign-in. DPAssist now detects Google sign-in pages and emails the student instructions to fix the access issue.</p>
+  <h3>Teacher control</h3>
+  <p>DPAssist provides feedback and draft evaluation language. Teachers remain responsible for reviewing student work, assigning final grades, and making instructional decisions.</p>
+</section>
 
-    <div class="code-block">
-<span class="key">GOOGLE_SHEET_ID</span> = <span class="val">"paste-your-sheet-id-here"</span><br>
-<span class="key">GEMINI_API_KEY</span> = <span class="val">"paste-your-gemini-key-here"</span><br>
-<span class="key">TEACHER_EMAIL</span> = <span class="val">"your.email@gmail.com"</span><br>
-<span class="key">GMAIL_APP_PASSWORD</span> = <span class="val">"your16charpassword"</span><br>
-<span class="key">RUBRIC_STORAGE</span> = <span class="val">"sheets"</span><br>
-<span class="key">CHECK_INTERVAL_SECONDS</span> = <span class="val">"60"</span><br>
-<span class="key">GOOGLE_CREDENTIALS_JSON</span> = <span class="val">'''</span><br>
-<span class="comment">paste entire contents of your service-account-credentials.json file here</span><br>
-<span class="val">'''</span>
-    </div>
+<section id="troubleshooting">
+  <div class="section-title"><span class="badge">9</span><h2>Troubleshooting</h2></div>
+  <h3>Nothing is processing</h3>
+  <ul>
+    <li>Confirm the Render worker is live.</li>
+    <li>Check Render logs for errors.</li>
+    <li>Confirm the Google Sheet ID is correct.</li>
+    <li>Confirm the service account has Editor access to the Sheet.</li>
+  </ul>
+  <h3>Dashboard works, but submissions do not process</h3>
+  <p>This usually means the Streamlit dashboard is deployed but the Render worker is not running.</p>
+  <h3>Student did not receive feedback</h3>
+  <ul>
+    <li>Check the student's email address in the Sheet.</li>
+    <li>Confirm the Gmail App Password has no spaces.</li>
+    <li>Check Render logs for SMTP errors.</li>
+  </ul>
+  <h3>Rubric not found</h3>
+  <ul>
+    <li>Confirm the rubric was uploaded.</li>
+    <li>Confirm the unit name matches exactly.</li>
+    <li>Confirm <code>RUBRIC_STORAGE=sheets</code>.</li>
+  </ul>
+  <h3>Portfolio access issue</h3>
+  <p>Ask the student to open the submitted link in an incognito/private window. If Google asks them to sign in, the site is not public yet.</p>
+</section>
 
-    <div class="callout warning">
-      <strong>The triple quotes are critical:</strong> The last line uses three apostrophe characters ''' on each side of the JSON. Type these manually on your keyboard — do not copy them from a document, as some apps replace them with curved "smart quotes" that will not work.
-    </div>
+<section id="security">
+  <div class="section-title"><span class="badge">10</span><h2>Security Reminders</h2></div>
+  <ul>
+    <li>Never commit <code>.env</code> to GitHub.</li>
+    <li>Never commit <code>service-account-credentials.json</code> to GitHub.</li>
+    <li>Store credentials only in Streamlit Secrets and Render Environment Variables.</li>
+    <li>Use a Gmail App Password instead of a normal Google password.</li>
+    <li>Remove spaces from the Gmail App Password before entering it in cloud services.</li>
+  </ul>
+</section>
 
-    <div class="callout tip">
-      <strong>Pasting the JSON file:</strong> Open your service-account-credentials.json file in a text editor. Press Command+A (Mac) or Ctrl+A (Windows) to select everything, then Command+C / Ctrl+C to copy. Paste it between the triple quotes in Streamlit.
-    </div>
-
-    <ol class="steps" style="margin-top: 16px;">
-      <li class="step"><div class="step-num">6</div><div class="step-content"><div class="step-title">Click Save, then Deploy</div><div class="step-desc">Click "Save" to save your secrets. Then click "Deploy". Streamlit will build and launch your app — this takes about 2 minutes.</div></div></li>
-      <li class="step"><div class="step-num">7</div><div class="step-content"><div class="step-title">Get a clean URL (optional)</div><div class="step-desc">Once deployed, click the three-dot menu next to your app → Settings → App URL. Type a name like "dpassist-yourschool" and save. Your app will be at <strong>dpassist-yourschool.streamlit.app</strong>.</div></div></li>
-    </ol>
-
-    <div class="callout success">
-      <strong>You are done with setup!</strong> Your Teacher Dashboard is now live at your Streamlit URL. Bookmark it — this is all you need to open every day.
-    </div>
-  </div>
-
-  <div class="section" id="s8">
-    <div class="section-header">
-      <div class="step-badge">8</div>
-      <h2>Daily use</h2>
-      <span class="time-pill">2 min/day</span>
-    </div>
-    <p class="intro-text">Once set up, DPAssist runs automatically in the cloud 24/7. Here is all you need to do each day.</p>
-
-    <div class="visual-box">
-      <div class="visual-box-title">Adding a rubric — do this once per assignment</div>
-      <ul class="checklist">
-        <li><div class="check-box"></div>Open your Streamlit URL in any browser</li>
-        <li><div class="check-box"></div>Click "Rubrics" in the left menu</li>
-        <li><div class="check-box"></div>Upload your rubric PDF</li>
-        <li><div class="check-box"></div>Type the unit name exactly as it appears in your Google Form</li>
-        <li><div class="check-box"></div>Set the due date and click "Parse and Add Rubric"</li>
-      </ul>
-    </div>
-
-    <div class="visual-box">
-      <div class="visual-box-title">After the deadline — reviewing scored drafts</div>
-      <ul class="checklist">
-        <li><div class="check-box"></div>Open Gmail and go to your Drafts folder</li>
-        <li><div class="check-box"></div>You will see one draft per student submission</li>
-        <li><div class="check-box"></div>Read the AI evaluation — edit anything you want to change</li>
-        <li><div class="check-box"></div>Click Send when you are happy with it</li>
-      </ul>
-    </div>
-
-    <div class="callout tip">
-      <strong>Remember:</strong> The unit name in DPAssist must exactly match the unit name in your Google Form dropdown. Capitalization matters — "Milling About" and "milling about" are treated as different units.
-    </div>
-  </div>
-
-  <hr class="divider">
-
-  <div class="final-box">
-    <h3>Your dashboard is live</h3>
-    <p>Visit it in any browser — no installation, no login required for students.</p>
-    <a href="https://dpassist-edu.streamlit.app" class="final-url">dpassist-edu.streamlit.app</a>
-  </div>
+<div class="footer">
+  DPAssist - Cloud-based portfolio feedback for teachers<br>
+  Teacher Dashboard: <a href="https://dpassist-edu.streamlit.app">https://dpassist-edu.streamlit.app</a>
+</div>
 
 </div>
 </body>
