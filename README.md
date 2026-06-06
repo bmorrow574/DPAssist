@@ -6,8 +6,7 @@
 
 ## Live Production System
 
-🌐 **Teacher Dashboard**
-(https://dpassist-edu.streamlit.app)
+🌐 **Teacher Dashboard:** [https://dpassist-edu.streamlit.app/](https://dpassist-edu.streamlit.app/)
 
 ### Dashboard Preview
 
